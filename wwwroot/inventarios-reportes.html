@@ -1,0 +1,128 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Reportes de Transferencias - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --line:#26263a; --field:#0f0f18;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Arial}
+    .wrap{width:min(1380px,96vw);margin:0 auto;padding:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .grid{display:grid;gap:12px;grid-template-columns:repeat(3,minmax(0,1fr))}
+    @media (max-width:900px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+    .field{background:var(--field);border:1px solid var(--line);color:#fff;border-radius:10px;padding:10px 12px;outline:none}
+    .muted{color:var(--muted);font-size:12px}
+    .status{padding:12px;border:1px solid var(--line);border-radius:10px;background:#10101a}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#10101a;color:var(--muted);font-size:12px}
+    .tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:900px}
+    th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left}
+    th{background:#10101a}
+    h1,h2{margin:0}
+    h1{font-size:24px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    @media print{
+      #appMenu,.no-print{display:none !important}
+      body{background:#fff;color:#000}
+      .wrap{width:100%;max-width:none;padding:0}
+      .card{background:#fff;color:#000;border-color:#d0d0d0;break-inside:avoid}
+      .status,.pill{background:#fff;color:#000}
+      th{background:#f4f4f4}
+    }
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row" style="margin-bottom:12px"></div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h1>Reportes de transferencias</h1>
+      <div class="muted" id="sessionInfo" style="margin-top:8px">-</div>
+      <div id="status" class="status" style="margin-top:12px">Cargando...</div>
+    </div>
+
+    <div class="card no-print" style="margin-bottom:12px">
+      <div class="row">
+        <label class="muted">Desde</label>
+        <input id="fromDate" class="field" type="date">
+        <label class="muted">Hasta</label>
+        <input id="toDate" class="field" type="date">
+        <label class="muted">Barra</label>
+        <select id="areaFilter" class="field" style="min-width:220px"></select>
+        <label class="muted">Movimiento</label>
+        <select id="typeFilter" class="field" style="min-width:220px">
+          <option value="">Todos</option>
+          <option value="stock_in">Entrada a almacen</option>
+          <option value="to_bar">Envio a barra</option>
+          <option value="to_warehouse">Regreso a almacen</option>
+        </select>
+        <button id="btnReload" class="field" type="button" style="width:auto;cursor:pointer;background:#2f7cff;font-weight:800">Actualizar</button>
+        <button id="btnPrint" class="field" type="button" style="width:auto;cursor:pointer;background:#2a2a3a;font-weight:800">Imprimir PDF</button>
+      </div>
+    </div>
+
+    <div class="grid">
+      <div class="card"><span class="muted">Movimientos</span><div id="kMoves" style="font-size:28px;font-weight:900;margin-top:6px">0</div></div>
+      <div class="card"><span class="muted">Unidades a barras</span><div id="kToBar" style="font-size:28px;font-weight:900;margin-top:6px">0</div></div>
+      <div class="card"><span class="muted">Unidades a almacen</span><div id="kToWarehouse" style="font-size:28px;font-weight:900;margin-top:6px">0</div></div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <h2>Detalle</h2>
+        <span class="pill" id="rangeInfo">Rango actual</span>
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Movimiento</th>
+              <th>Barra</th>
+              <th>Producto</th>
+              <th>Cantidad</th>
+              <th>Operador</th>
+            </tr>
+          </thead>
+          <tbody id="rows">
+            <tr><td colspan="6" class="muted">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <h2>Existencias actuales</h2>
+        <span class="pill">Snapshot real desde backend</span>
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Barra</th>
+              <th>Producto</th>
+              <th>En barra</th>
+              <th>En almacen</th>
+            </tr>
+          </thead>
+          <tbody id="snapshotRows">
+            <tr><td colspan="4" class="muted">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="/common.js"></script>
+  <script defer src="/inventarios-reportes.js"></script>
+</body>
+</html>

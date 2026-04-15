@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard Caja</title>
+  <script defer src="/common.js"></script>
+  <script defer src="/dashboard-caja/app.js"></script>
+  <style>
+    :root{
+      --bg:#0b0b0f;
+      --card:#151520;
+      --muted:#9aa0a6;
+      --txt:#fff;
+      --line:#26263a;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Arial}
+    .wrap{width:min(1280px,96vw);margin:0 auto;padding:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .status{padding:12px;border:1px solid var(--line);border-radius:10px;background:#10101a}
+    .muted{color:var(--muted);font-size:12px}
+    h1,h2{margin:0}
+    h1{font-size:24px}
+    h2{font-size:18px}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div id="cashierMenu" class="row" style="margin-bottom:12px"></div>
+
+    <div id="unauth" class="card" style="display:none">
+      <h2>No autorizado</h2>
+      <div class="status" style="margin-top:10px">Esta pantalla es solo para rol Cajero.</div>
+    </div>
+
+    <div id="main" style="display:none">
+      <div class="card">
+        <h1>Dashboard de Caja</h1>
+        <div class="muted" id="sessionInfo" style="margin-top:8px">-</div>
+        <div class="status" id="status" style="margin-top:12px">Redirigiendo a Recargas...</div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

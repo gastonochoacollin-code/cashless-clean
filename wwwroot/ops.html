@@ -1,0 +1,174 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Operativo - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --field:#0f0f18; --border:#26263a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
+      background:radial-gradient(1200px 700px at 20% 10%, #1a1a33 0%, transparent 55%),
+                 radial-gradient(1000px 600px at 80% 80%, #111133 0%, transparent 55%),
+                 var(--bg);
+      color:var(--txt);
+      min-height:100vh;
+      padding:24px;
+    }
+    .wrap{max-width:1100px;margin:0 auto}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:18px; flex-wrap:wrap;
+    }
+    .brand{display:flex; flex-direction:column; gap:2px}
+    .brand b{font-size:18px}
+    .brand span{color:var(--muted); font-size:12px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      border:0; cursor:pointer; padding:12px 16px; border-radius:12px;
+      background:var(--blue); color:white; font-weight:800;
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.danger{background:var(--red)}
+    .btn:disabled{opacity:.45; cursor:not-allowed}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 18px 60px rgba(0,0,0,.35);
+      margin-bottom:14px;
+    }
+    h2{margin:0 0 12px 0; font-size:18px}
+    .muted{color:var(--muted); font-size:12px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; background:#0f0f18;
+      border:1px solid var(--border); color:var(--muted); font-size:12px;
+    }
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .grid{display:grid; grid-template-columns:repeat(2, minmax(0,1fr)); gap:12px}
+    @media (max-width: 900px){ .grid{grid-template-columns:1fr} }
+    .big{
+      display:flex; align-items:center; justify-content:space-between; gap:10px;
+      padding:14px; border-radius:14px; background:#101022; border:1px solid var(--border);
+    }
+    .big b{font-size:16px}
+    .big small{color:var(--muted)}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <b>Cashless</b>
+        <span>Panel operativo</span>
+      </div>
+      <div class="row">
+        <span class="pill" id="sessionInfo">-</span>
+        <button class="btn danger" id="btnLogout">Cerrar sesion</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Accesos rapidos</h2>
+      <div class="grid">
+        <div class="big">
+          <div>
+            <b>POS / Ventas</b><br>
+            <small id="posHint">Pantalla de cobro</small>
+          </div>
+          <button class="btn" id="btnPos">Abrir</button>
+        </div>
+
+        <div class="big" id="catalogCard">
+          <div>
+            <b>Menus de Barra</b><br>
+            <small id="catalogHint">Productos y menus por barra</small>
+          </div>
+          <button class="btn alt" id="btnCatalog">Abrir</button>
+        </div>
+
+        <div class="big" id="barReportsCard">
+          <div>
+            <b>Reportes de Barra</b><br>
+            <small id="barReportsHint">Ventas, resumen y turnos de barra</small>
+          </div>
+          <button class="btn alt" id="btnBarReports">Abrir</button>
+        </div>
+
+        <div class="big" id="inventoryCard">
+          <div>
+            <b>Inventarios</b><br>
+            <small id="inventoryHint">Almacen base y productos asignados a barras</small>
+          </div>
+          <button class="btn alt" id="btnInventory">Abrir</button>
+        </div>
+
+        <div class="big" id="barsCard">
+          <div>
+            <b>Barras</b><br>
+            <small id="barsHint">Alta, edicion y baja de barras y stands</small>
+          </div>
+          <button class="btn alt" id="btnBars">Abrir</button>
+        </div>
+
+        <div class="big" id="usersCard">
+          <div>
+            <b>Usuarios</b><br>
+            <small id="usersHint">Registro y asignacion de pulseras</small>
+          </div>
+          <button class="btn alt" id="btnUsers">Abrir</button>
+        </div>
+
+        <div class="big" id="transferBalanceCard">
+          <div>
+            <b>Transferencias de Saldo</b><br>
+            <small id="transferBalanceHint">Mover saldo entre usuarios</small>
+          </div>
+          <button class="btn alt" id="btnTransferBalance">Abrir</button>
+        </div>
+
+        <div class="big" id="priceListCard">
+          <div>
+            <b>Lista de Precios</b><br>
+            <small id="priceListHint">Consulta de productos, precios y barras activas</small>
+          </div>
+          <button class="btn alt" id="btnPriceList">Abrir</button>
+        </div>
+
+        <div class="big" id="cashierCard">
+          <div>
+            <b>Caja / Cortes</b><br>
+            <small id="cashierHint">Turnos y cortes segun permisos</small>
+          </div>
+          <button class="btn" id="btnCashier">Abrir</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Ultimo UID</h2>
+      <div class="row" style="justify-content:space-between">
+        <div>
+          <div class="muted">UID leido por el lector NFC</div>
+          <div id="uidValue" class="mono" style="font-size:20px;margin-top:6px">-</div>
+        </div>
+        <div class="muted" id="uidStatus">Esperando...</div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script src="/ops.js" defer></script>
+</body>
+</html>
+
+

@@ -1,0 +1,142 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reportes - Productos</title>
+
+  <script defer src="/common.js"></script>
+  <script defer src="/reports-products.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --border:#232336; --field:#0f0f16;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--txt)}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;flex-direction:column;gap:4px}
+    .title{font-size:28px;font-weight:1000}
+    .muted{color:var(--muted);font-size:13px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
+    .btn{
+      border:0;cursor:pointer;font-weight:900;padding:10px 14px;border-radius:12px;
+      background:var(--blue);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.small{padding:8px 12px;border-radius:10px;font-size:13px}
+    .field{background:var(--field);border:1px solid var(--border);color:#fff;border-radius:12px;padding:10px 12px;outline:none}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+    th{font-size:12px;text-transform:uppercase;letter-spacing:.08em;color:#cfd3da;text-align:left}
+    .statsRow{display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:12px;margin-top:10px}
+    @media (max-width:900px){.statsRow{grid-template-columns:repeat(2,minmax(0,1fr))}}
+    @media (max-width:520px){.statsRow{grid-template-columns:1fr}}
+    .statCard{background:#10101a;border:1px solid var(--border);border-radius:14px;padding:12px}
+    .statLabel{color:var(--muted);font-size:12px}
+    .statValue{font-size:20px;font-weight:1000}
+    .printHeader{display:none}
+    @media print{
+      body{background:#fff !important;color:#000 !important}
+      #appMenu,.btn,button,.no-print{display:none !important}
+      .printHeader{display:block !important;margin-bottom:12px}
+      .card{border:1px solid #ccc !important;box-shadow:none !important}
+      table{width:100% !important;border-collapse:collapse !important}
+      th,td{border:1px solid #ccc !important;padding:6px !important;font-size:12px !important}
+      table{page-break-inside:auto}
+      tr{page-break-inside:avoid;page-break-after:auto}
+    }
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row no-print" style="margin-bottom:12px"></div>
+    <div class="top">
+      <div class="brand">
+        <div class="title">Por producto</div>
+        <div class="muted" id="rangePill">-</div>
+        <div class="muted" id="festivalInfo">Festival: -</div>
+      </div>
+      <div class="row">
+        <a class="btn alt" href="/reports.html">Filtros</a>
+        <button id="btnReload" class="btn">Actualizar</button>
+      </div>
+    </div>
+
+    <div class="card no-print" style="margin-top:12px">
+      <div class="row">
+        <label class="muted">Desde</label>
+        <input id="fromDate" class="field" type="date" />
+        <label class="muted">Hasta</label>
+        <input id="toDate" class="field" type="date" />
+        <button id="btnApply" class="btn small">Aplicar</button>
+        <button id="btnPrint" class="btn small alt">Imprimir PDF</button>
+        <button id="btnExport" class="btn small alt">Export CSV</button>
+      </div>
+      <div class="muted" id="filtersInfo" style="margin-top:6px">-</div>
+    </div>
+
+    <div id="msgBox" class="muted" style="margin-top:8px"></div>
+    <div id="errorBox" class="card" style="margin-top:10px;border-color:#884040;color:#ffd1d1;display:none"></div>
+
+    <div class="card" style="margin-top:12px">
+      <div id="printHeader" class="printHeader">
+        <h2>Reporte por productos</h2>
+        <div class="muted" id="printFestival">Festival: -</div>
+        <div class="muted" id="printRange">Rango: -</div>
+        <div class="muted" id="printGenerated">Generado: -</div>
+      </div>
+
+      <div id="statsRow" class="statsRow">
+        <div class="statCard">
+          <div class="statLabel">Total vendido</div>
+          <div class="statValue" id="statTotalSold">$0.00</div>
+        </div>
+        <div class="statCard">
+          <div class="statLabel">Total unidades</div>
+          <div class="statValue" id="statTotalUnits">0</div>
+        </div>
+        <div class="statCard">
+          <div class="statLabel"># Productos</div>
+          <div class="statValue" id="statProducts">0</div>
+        </div>
+        <div class="statCard">
+          <div class="statLabel">Ticket promedio (unidad)</div>
+          <div class="statValue" id="statAvgTicket">$0.00</div>
+        </div>
+        <div class="statCard">
+          <div class="statLabel">Producto mÃ¡s vendido</div>
+          <div class="statValue" id="statTopQty">-</div>
+        </div>
+        <div class="statCard">
+          <div class="statLabel">Mayor venta ($)</div>
+          <div class="statValue" id="statTopTotal">-</div>
+        </div>
+      </div>
+
+      <div style="overflow:auto;margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th style="width:160px">Cantidad</th>
+              <th style="width:180px">Total vendido</th>
+              <th style="width:160px">Ticket promedio</th>
+            </tr>
+          </thead>
+          <tbody id="productsBody">
+            <tr><td colspan="4">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

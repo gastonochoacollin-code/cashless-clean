@@ -1,0 +1,237 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>POS - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --field:#0f0f18; --border:#26263a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
+      background:radial-gradient(1200px 700px at 20% 10%, #1a1a33 0%, transparent 55%),
+                 radial-gradient(1000px 600px at 80% 80%, #111133 0%, transparent 55%),
+                 var(--bg);
+      color:var(--txt);
+      min-height:100vh;
+      padding:20px;
+    }
+    .wrap{max-width:1280px;margin:0 auto}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:16px; flex-wrap:wrap;
+    }
+    .brand{display:flex; flex-direction:column; gap:2px}
+    .brand b{font-size:18px}
+    .brand span{color:var(--muted); font-size:12px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      border:0; cursor:pointer; padding:10px 14px; border-radius:12px;
+      background:var(--blue); color:white; font-weight:800;
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.danger{background:var(--red)}
+    .btn:disabled{opacity:.45; cursor:not-allowed}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 18px 60px rgba(0,0,0,.35);
+      margin-bottom:14px;
+    }
+    h2{margin:0 0 12px 0; font-size:18px}
+    .muted{color:var(--muted); font-size:12px}
+    .pill{
+      display:inline-flex; align-items:center; gap:8px;
+      padding:6px 10px; border-radius:999px; background:#0f0f18;
+      border:1px solid var(--border); color:var(--muted); font-size:12px;
+    }
+    .field, select{
+      background:var(--field); border:1px solid var(--border); color:var(--txt);
+      border-radius:12px; padding:10px 12px; outline:none;
+    }
+    .grid{
+      display:grid; grid-template-columns:repeat(3, minmax(0,1fr)); gap:12px;
+    }
+    @media (max-width: 1100px){ .grid{grid-template-columns:repeat(2, minmax(0,1fr))} }
+    @media (max-width: 780px){ .grid{grid-template-columns:1fr} }
+    .product{
+      background:#101022; border:1px solid var(--border); border-radius:14px;
+      padding:12px; display:flex; justify-content:space-between; gap:8px;
+    }
+    .product b{font-size:14px}
+    .product small{color:var(--muted)}
+    .split{display:grid; grid-template-columns:1.2fr .8fr; gap:12px}
+    @media (max-width: 980px){ .split{grid-template-columns:1fr} }
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:8px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; font-size:13px}
+    th{color:var(--muted); font-weight:700; letter-spacing:.04em; text-transform:uppercase; font-size:11px}
+    .qty{display:flex; gap:6px; align-items:center}
+    .qty button{padding:6px 10px; border-radius:8px}
+    .right{display:flex; justify-content:flex-end}
+    .success{color:var(--green); font-weight:800}
+    .error{color:var(--red); font-weight:800}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .ticket-summary{
+      border:1px dashed rgba(255,255,255,.16);
+      border-radius:14px;
+      padding:12px;
+      background:rgba(255,255,255,.02);
+    }
+    .ticket-summary[hidden]{display:none}
+    .ticket-lines{display:grid; gap:6px; margin-top:10px}
+    .ticket-line{
+      display:flex; justify-content:space-between; gap:12px;
+      font-size:13px;
+    }
+    .ticket-items{
+      margin:10px 0 0 0;
+      padding-left:18px;
+      color:var(--txt);
+    }
+    .ticket-items li{margin:4px 0}
+    .ticket-balance{
+      font-size:16px;
+      font-weight:800;
+      color:var(--green);
+    }
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <img src="/assets/logo-horizontal.png" alt="Cashless Logo" class="logo-horizontal">
+        <span>POS dinámico</span>
+      </div>
+      <div class="row">
+        <span class="pill" id="sessionInfo">—</span>
+        <button class="btn danger" id="btnLogout">Cerrar sesión</button>
+      </div>
+    </div>
+
+    <div class="split">
+      <div>
+        <div class="card">
+          <h2>Catálogo</h2>
+          <div class="row" style="margin-bottom:10px">
+            <select id="areaSelect" class="field" style="min-width:200px"></select>
+            <input id="q" class="field" placeholder="Buscar producto..." style="flex:1;min-width:200px" />
+            <span class="muted" id="catalogMeta">—</span>
+          </div>
+          <div id="productsGrid" class="grid"></div>
+        </div>
+      </div>
+
+      <div>
+        <div class="card">
+          <h2>Carrito</h2>
+          <div class="muted" id="cartMsg" style="margin-bottom:10px">Sin productos</div>
+          <div style="overflow:auto">
+            <table>
+              <thead>
+                <tr>
+                  <th>Producto</th>
+                  <th style="width:120px">Precio</th>
+                  <th style="width:140px">Cantidad</th>
+                  <th style="width:120px">Total</th>
+                  <th style="width:80px"></th>
+                </tr>
+              </thead>
+              <tbody id="cartRows"></tbody>
+            </table>
+          </div>
+        </div>
+
+        <div class="card">
+          <h2>UID + Cobro</h2>
+          <div class="row" style="margin-bottom:10px">
+            <select id="terminalSelect" class="field" style="min-width:180px"></select>
+            <button class="btn alt" id="terminalSave">Guardar</button>
+            <span class="pill">Terminal: <span id="terminalLabel">—</span></span>
+          </div>
+          <div class="muted" style="margin:-4px 0 10px 0">
+            Cada PC debe tener un Terminal distinto para que la lectura no se refleje en otras cajas.
+            La seleccion se guarda en esta PC. También puedes abrir con ?terminalId=COMIDA-01
+          </div>
+          <div class="row" style="margin-bottom:10px">
+            <input id="uidInput" class="field mono" placeholder="UID manual" style="flex:1;min-width:220px" />
+            <button class="btn alt" id="btnLastUid">Usar último UID</button>
+          </div>
+          <div class="row" style="margin-bottom:10px">
+            <div class="pill"><b>Estado:</b> <span id="cardStatusPill">-</span></div>
+            <div class="pill"><b>Titular:</b> <span id="cardHolderName">-</span></div>
+            <div class="pill"><b>Saldo actual:</b> <span id="cardBalanceBefore" class="mono">$0.00</span></div>
+            <div class="pill"><b>Saldo después:</b> <span id="cardBalanceAfter" class="mono">-</span></div>
+          </div>
+
+          <div class="row" style="margin-bottom:10px">
+            <select id="tipPercent" class="field" style="min-width:160px">
+              <option value="0">Propina 0%</option>
+              <option value="5">Propina 5%</option>
+              <option value="10">Propina 10%</option>
+              <option value="15">Propina 15%</option>
+            </select>
+            <input id="tipManual" class="field" type="number" inputmode="decimal" placeholder="Propina manual" style="min-width:180px" />
+          </div>
+
+          <div class="row" style="justify-content:space-between;margin-bottom:8px">
+            <div class="muted">Subtotal</div>
+            <div id="subtotal" class="mono">$0.00</div>
+          </div>
+          <div class="row" style="justify-content:space-between;margin-bottom:8px">
+            <div class="muted">Propina</div>
+            <div id="tip" class="mono">$0.00</div>
+          </div>
+          <div class="row" style="justify-content:space-between;margin-bottom:12px">
+            <div class="muted">Total</div>
+            <div id="total" class="mono" style="font-size:18px;font-weight:800">$0.00</div>
+          </div>
+
+          <div class="row">
+            <button class="btn" id="btnPay">Cobrar</button>
+            <button class="btn alt" id="btnClear">Limpiar</button>
+            <button class="btn alt" id="btnPrintTicket" hidden>Imprimir ticket</button>
+            <label class="pill" for="autoPrintTicket">
+              <input id="autoPrintTicket" type="checkbox" />
+              Autoimprimir
+            </label>
+          </div>
+          <div id="payMsg" class="muted" style="margin-top:10px"></div>
+          <div id="ticketSummary" class="ticket-summary" hidden style="margin-top:12px">
+            <div class="row" style="justify-content:space-between">
+              <b>Último ticket</b>
+              <span id="ticketSummaryWhen" class="muted">—</span>
+            </div>
+            <div class="ticket-lines">
+              <div class="ticket-line"><span class="muted">Barra / área</span><span id="ticketSummaryArea">-</span></div>
+              <div class="ticket-line"><span class="muted">Cajero</span><span id="ticketSummaryOperator">-</span></div>
+              <div class="ticket-line"><span class="muted">UID / referencia</span><span id="ticketSummaryUid" class="mono">-</span></div>
+            </div>
+            <ul id="ticketSummaryItems" class="ticket-items"></ul>
+            <div class="ticket-lines">
+              <div class="ticket-line"><span class="muted">Subtotal</span><span id="ticketSummarySubtotal" class="mono">$0.00</span></div>
+              <div class="ticket-line"><span class="muted">Propina</span><span id="ticketSummaryTip" class="mono">$0.00</span></div>
+              <div class="ticket-line"><span class="muted">Donación</span><span id="ticketSummaryDonation" class="mono">$0.00</span></div>
+              <div class="ticket-line"><span>Total</span><span id="ticketSummaryTotal" class="mono">$0.00</span></div>
+              <div class="ticket-line"><span>Saldo restante</span><span id="ticketSummaryBalance" class="mono ticket-balance">-</span></div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script src="/pos.js" defer></script>
+</body>
+</html>
+
+

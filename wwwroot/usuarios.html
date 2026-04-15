@@ -1,0 +1,212 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Usuarios - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --field:#0f0f18; --line:#26263a;
+      --okbg:#133d22; --ok:#7dff9a; --errbg:#3d1313; --err:#ffd1d1;
+    }
+    *{ box-sizing:border-box; }
+    body{ font-family: system-ui, Arial; background:var(--bg); color:var(--txt); margin:0 }
+    .wrap{ width:min(1400px,96vw); margin:0 auto; padding:16px }
+    h1{ font-size:20px; margin:0 0 12px; display:flex; align-items:center; gap:8px }
+    h2{ font-size:16px; margin:0 0 10px }
+    .card{ background:var(--card); border-radius:14px; padding:14px; margin-bottom:12px }
+    .meta{ display:flex; gap:10px; flex-wrap:wrap; align-items:center; justify-content:space-between }
+    .pill{ background:#10101a; border:1px solid var(--line); color:var(--muted); padding:6px 10px; border-radius:999px; font-size:12px }
+    .muted{ color:var(--muted) }
+    .mono{ font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", monospace }
+
+    .actions{ display:flex; gap:10px; flex-wrap:wrap; align-items:center }
+    input{
+      padding:12px; border-radius:10px; border:1px solid var(--line);
+      background:var(--field); color:#fff; outline:none; min-width:240px;
+    }
+    input:focus{ border-color:#3a6cff }
+
+    button{
+      padding:12px 14px; font-size:14px; border-radius:12px; border:0;
+      background:var(--blue); color:#fff; font-weight:800; cursor:pointer
+    }
+    button.alt{ background:var(--alt) }
+    button.red{ background:var(--red) }
+    button.green{ background:var(--green); color:#08210f; }
+    button:disabled{ opacity:.45; cursor:not-allowed }
+
+    .status{ margin-top:10px; padding:12px; border-radius:10px; font-weight:700; background:#10101a; border:1px solid var(--line); color:#c9cdd3; }
+    .status.ok{ background:var(--okbg); border-color:#1c5c32; color:var(--ok); }
+    .status.error{ background:var(--errbg); border-color:#884040; color:var(--err); }
+
+    .tableWrap{ max-height:65vh; overflow:auto; border:1px solid var(--line); border-radius:12px; margin-top:12px; }
+    table{ width:100%; border-collapse:collapse; min-width:1080px; }
+    th, td{ padding:10px; border-bottom:1px solid var(--line); text-align:left; vertical-align:top; white-space:nowrap; }
+    td:nth-child(2), td:nth-child(3){ white-space:normal; }
+    th{ background:#10101a; position:sticky; top:0; z-index:1; }
+    .btnSmall{ padding:8px 10px; font-size:12px; border-radius:10px; }
+
+    .grid{ display:grid; gap:12px; grid-template-columns:1fr; }
+    @media (min-width: 1020px){
+      .grid{ grid-template-columns: 1.35fr .95fr; }
+    }
+    .modal{
+      position:fixed; inset:0; background:rgba(0,0,0,.65);
+      display:none; align-items:center; justify-content:center; padding:16px; z-index:10;
+    }
+    .modal.open{ display:flex; }
+    .modal-card{
+      width:min(640px,96vw); background:var(--card); border:1px solid var(--line);
+      border-radius:16px; padding:16px;
+    }
+    .modal-card h2{ margin:0 0 8px }
+    .form-row{ display:flex; gap:10px; flex-wrap:wrap; }
+    .form-row .field{ min-width:220px; flex:1; }
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <h1>Usuarios <span id="jsDot" class="muted" title="JS cargado">*</span></h1>
+    <div id="appMenu" class="actions" style="margin-bottom:12px"></div>
+
+    <div class="grid">
+      <div class="card">
+        <div class="meta">
+          <div class="pill"><b>Sesion:</b> <span id="sessionInfo">-</span></div>
+          <div class="actions">
+            <button class="alt" id="btnGoBarra" type="button">Barra</button>
+            <button class="red" id="btnLogout" type="button">Cerrar sesion</button>
+          </div>
+        </div>
+        <div id="terminalControls" class="actions" style="margin-top:10px; align-items:center;">
+          <span class="pill"><b>Terminal:</b> <span id="terminalLabel">-</span></span>
+          <select id="terminalSelect" style="padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#10101a;color:#fff;font-size:12px"></select>
+          <button class="alt btnSmall" id="terminalSave" type="button">Cambiar</button>
+        </div>
+
+        <div class="actions" style="margin-top:12px;">
+          <input id="q" placeholder="Buscar por nombre / mail / telefono..." />
+          <button id="btnRefresh" type="button">Refrescar</button>
+          <button id="btnExportUsers" class="green" type="button">Descargar Excel</button>
+          <button id="btnResetAllBalances" class="red" type="button" style="display:none;">Reset general de saldos</button>
+          <button id="btnNewUser" class="alt" type="button">Nuevo usuario</button>
+          <span class="pill"><b>Total:</b> <span id="count">0</span></span>
+        </div>
+
+        <div id="status" class="status">Listo.</div>
+
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:70px;">ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th style="width:160px;">Telefono</th>
+                <th style="width:120px;">Saldo</th>
+                <th style="width:140px;">Gastado</th>
+                <th style="width:230px;">Creado</th>
+                <th style="width:220px;">Acciones</th>
+              </tr>
+            </thead>
+            <tbody id="tbody">
+              <tr><td colspan="8" class="muted">Sin datos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card">
+        <h2>Asignar / Reasignar pulsera</h2>
+        <div class="muted">Selecciona un usuario en la tabla y asigna una pulsera nueva usando <code>/api/last-uid</code> o pegando el UID manualmente. La terminal seleccionada queda guardada en esta PC.</div>
+        <div id="cardRoleNotice" class="status" style="display:none;margin-top:12px">Solo Cajero puede operar asignación de pulseras desde esta sección.</div>
+
+        <div style="margin-top:12px;">
+          <div class="pill"><b>Seleccionado:</b> <span id="selectedUser">Ninguno</span></div>
+        </div>
+
+        <div id="cardReadControls" class="actions" style="margin-top:12px;">
+          <button id="btnTakeLastUid" class="alt" type="button">Leer pulsera</button>
+          <span class="pill"><b>UID:</b> <span id="uidPreview" class="mono muted">-</span></span>
+        </div>
+
+        <div id="cardActionControls" class="actions" style="margin-top:10px;">
+          <input id="uidManual" class="mono" placeholder="UID manual (opcional)" />
+          <button id="btnAssign" class="green" type="button" disabled>Asignar pulsera</button>
+          <button id="btnForceAssign" class="red" type="button" style="display:none;">Reasignar por perdida</button>
+          <button id="btnCardStatus" class="alt" type="button">Ver estado tarjeta</button>
+        </div>
+
+        <div class="actions" style="margin-top:10px;">
+          <span class="pill"><b>Estado:</b> <span id="cardStatus">-</span></span>
+          <span class="pill"><b>Titular:</b> <span id="cardOwner">-</span></span>
+          <span class="pill"><b>Saldo:</b> <span id="cardBalance">-</span></span>
+        </div>
+
+        <div class="muted" style="margin-top:10px;">
+          Flujo: usa <code>GET /api/last-uid?terminalId=...</code>, <code>POST /api/cards/assign</code> y <code>POST /api/cards/reassign</code>.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="userModal" class="modal" aria-hidden="true">
+    <div class="modal-card">
+      <div class="meta" style="margin-bottom:8px">
+        <h2>Nuevo usuario</h2>
+        <div class="actions">
+          <button id="btnCloseUserModal" class="alt btnSmall" type="button">Cerrar</button>
+        </div>
+      </div>
+      <div id="userModalHelp" class="muted" style="margin-bottom:10px">
+        Solo Admin/SuperAdmin pueden crear usuarios de sistema. El PIN se guarda hasheado.
+      </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <input id="newName" class="field" placeholder="Nombre del usuario" />
+        <input id="newEmail" class="field" placeholder="Email (opcional)" />
+        <input id="newPhone" class="field" placeholder="Telefono (opcional)" />
+      </div>
+      <div id="systemUserFields">
+        <div class="muted" style="margin-bottom:10px">
+          Datos de acceso de sistema (solo Admin/SuperAdmin).
+        </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <input id="newDisplayName" class="field" placeholder="Nombre (displayName)" />
+        <input id="newUsername" class="field" placeholder="Usuario (username)" />
+      </div>
+      <div class="form-row" style="margin-bottom:10px">
+        <input id="newPin" class="field" placeholder="PIN (4-6 dígitos)" />
+        <select id="newRole" class="field">
+          <option value="">Rol...</option>
+          <option value="Admin">Admin</option>
+          <option value="SuperAdmin">SuperAdmin</option>
+          <option value="JefeDeBarra">JefeDeBarra</option>
+          <option value="JefeOperativo">JefeDeCaja</option>
+          <option value="Vendedor">Vendedor</option>
+          <option value="Cajero">Cajero</option>
+        </select>
+        <label class="pill" style="display:flex;gap:8px;align-items:center">
+          <input type="checkbox" id="newIsActive" checked />
+          Activo
+        </label>
+      </div>
+      </div>
+      <div class="actions">
+        <button id="btnCreateUser" class="green" type="button">Crear</button>
+        <div id="createUserMsg" class="muted"></div>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="/common.js"></script>
+  <script defer src="/usuarios.js?v=6"></script>
+</body>
+</html>
+
+

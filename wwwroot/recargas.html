@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Recargas - Cashless</title>
+
+  <script defer src="/common.js"></script>
+  <script defer src="/recargas.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --border:#232336; --field:#0f0f16;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--txt)}
+    .wrap{max-width:900px;margin:0 auto;padding:18px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .title{font-size:28px;font-weight:1000}
+    .muted{color:var(--muted);font-size:13px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
+    .btn{
+      border:0;cursor:pointer;font-weight:900;padding:10px 14px;border-radius:12px;
+      background:var(--blue);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.danger{background:var(--red)}
+    .btn.small{padding:8px 12px;border-radius:10px;font-size:13px}
+    .field{background:var(--field);border:1px solid var(--border);color:#fff;border-radius:12px;padding:10px 12px;outline:none;min-width:220px}
+    .grid2{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+    @media (max-width:720px){ .grid2{grid-template-columns:1fr} }
+    .status{margin-top:10px;padding:10px 12px;border-radius:10px;font-weight:700}
+    .status.ok{background:rgba(53,255,122,12);border:1px solid rgba(53,255,122,25);color:#b8ffd2}
+    .status.bad{background:rgba(255,90,90,12);border:1px solid rgba(255,90,90,25);color:#ffd1d1}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row" style="margin-bottom:12px"></div>
+    <div class="top">
+      <div>
+        <div class="title">Recargas</div>
+        <div class="muted" id="sessionInfo">Sesion</div>
+      </div>
+      <div class="row">
+        <a class="btn alt" id="btnDashboard" href="/dashboard.html">Dashboard</a>
+        <button id="btnLogout" class="btn danger">Cerrar sesion</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="margin-bottom:10px">
+        <select id="terminalSelect" class="field" style="min-width:180px"></select>
+        <button class="btn alt" id="terminalSave">Guardar</button>
+        <span class="pill">Terminal: <span id="terminalLabel">-</span></span>
+      </div>
+      <div class="row">
+        <button id="btnReadUid" class="btn alt">Leer tarjeta</button>
+        <input id="uidInput" class="field mono" placeholder="UID manual" />
+        <button id="btnLookup" class="btn">Buscar</button>
+      </div>
+      <div class="muted" style="margin-top:8px">Usa "Leer tarjeta" para usar el ultimo UID o ingresa manualmente. La terminal se guarda en esta PC.</div>
+    </div>
+
+    <div class="grid2" style="margin-top:12px">
+      <div class="card">
+        <div class="muted">Usuario</div>
+        <div style="font-weight:900" id="userName">-</div>
+        <div class="muted" style="margin-top:8px">Saldo</div>
+        <div style="font-weight:900" id="userBalance">-</div>
+      </div>
+      <div class="card">
+        <div class="muted">Monto</div>
+        <input id="amountInput" class="field" type="number" inputmode="decimal" placeholder="Ej: 200" style="margin-top:6px" />
+        <div class="muted" style="margin-top:10px">Forma de pago</div>
+        <select id="paymentMethod" class="field" style="margin-top:6px">
+          <option value="efectivo" selected>Efectivo</option>
+          <option value="tarjeta">Tarjeta</option>
+          <option value="transferencia">Transferencia</option>
+          <option value="cripto">Cripto</option>
+          <option value="otro">Otro</option>
+        </select>
+        <div class="row" style="margin-top:10px">
+          <button id="btnTopup" class="btn">Confirmar recarga</button>
+          <button id="btnQuick500" class="btn alt" type="button">+ $500</button>
+        </div>
+        <div id="statusBox" class="status" style="display:none"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>
+
+

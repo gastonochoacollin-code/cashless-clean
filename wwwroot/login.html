@@ -1,0 +1,77 @@
+﻿<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Login · Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --border:#232336; --field:#0f0f16;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--txt)}
+    .wrap{max-width:520px;margin:0 auto;padding:18px;min-height:100vh;display:flex;align-items:center}
+    .card{width:100%;background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
+    h1{margin:0 0 6px;font-size:22px;font-weight:1000}
+    .muted{color:var(--muted);font-size:13px}
+    label{display:block;margin:12px 0 6px;color:var(--muted);font-size:12px}
+    select,input{
+      width:100%;padding:12px;border-radius:12px;border:1px solid var(--border);
+      background:var(--field);color:#fff;outline:none
+    }
+    .row{display:flex;gap:10px;align-items:center;margin-top:12px;flex-wrap:wrap}
+    .btn{
+      border:0;cursor:pointer;font-weight:1000;
+      padding:12px 14px;border-radius:12px;background:var(--blue);color:#fff
+    }
+    .btn.alt{background:var(--alt)}
+    .btn:disabled{opacity:.55;cursor:not-allowed}
+    .status{margin-top:10px;min-height:18px;font-size:13px}
+    .err{color:var(--red)}
+    .ok{color:#a9ffbf}
+    .pill{display:inline-block;padding:6px 10px;border-radius:999px;border:1px solid var(--border);color:var(--muted);font-size:12px}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="card">
+      <div class="login-logo">
+        <img src="/assets/logo-horizontal.png" alt="Cashless Logo">
+      </div>
+      <h1>Cashless</h1>
+      <div class="muted">Inicia sesión.</div>
+
+      <div class="row" style="justify-content:space-between">
+        <span class="pill" id="sess">Sesión: (ninguna)</span>
+      </div>
+
+      <div id="tenantBox" style="display:none">
+        <label for="tenantSelect">Tenant</label>
+        <select id="tenantSelect"></select>
+      </div>
+
+      <label for="operatorName">Operador</label>
+      <input id="operatorName" type="text" autocomplete="username" placeholder="Operador (nombre o ID)" />
+
+      <label for="pin">NIP</label>
+      <input id="pin" type="password" inputmode="numeric" autocomplete="current-password" placeholder="••••" />
+
+      <div class="row">
+        <button id="btnLogin" class="btn" type="button">Entrar</button>
+        <button id="btnGoDash" class="btn alt" type="button" disabled>Ir al Dashboard</button>
+      </div>
+
+      <div id="msg" class="status muted">Listo.</div>
+      <div id="err" class="status err"></div>
+    </div>
+  </div>
+
+  <script defer src="/login.js"></script>
+</body>
+</html>
+
+

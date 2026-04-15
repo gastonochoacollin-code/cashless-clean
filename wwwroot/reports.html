@@ -1,0 +1,111 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reportes - Cashless</title>
+
+  <script defer src="/common.js"></script>
+  <script defer src="reports.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --border:#232336; --field:#0f0f16;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Arial;background:var(--bg);color:var(--txt)}
+    .wrap{max-width:1200px;margin:0 auto;padding:18px}
+    .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap}
+    .brand{display:flex;flex-direction:column;gap:4px}
+    .title{font-size:28px;font-weight:1000}
+    .muted{color:var(--muted);font-size:13px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .card{background:var(--card);border:1px solid var(--border);border-radius:18px;padding:16px}
+    .grid3{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:12px}
+    @media (max-width:900px){ .grid3{grid-template-columns:repeat(2,1fr)} }
+    @media (max-width:520px){ .grid3{grid-template-columns:1fr} }
+    .btn{
+      border:0;cursor:pointer;font-weight:900;padding:10px 14px;border-radius:12px;
+      background:var(--blue);color:#fff;text-decoration:none;display:inline-flex;align-items:center;gap:8px
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.small{padding:8px 12px;border-radius:10px;font-size:13px}
+    .field{background:var(--field);border:1px solid var(--border);color:#fff;border-radius:12px;padding:10px 12px;outline:none}
+    .cardlink{display:flex;flex-direction:column;gap:6px;text-decoration:none;color:#fff}
+    .cardlink .title2{font-size:18px;font-weight:900}
+    .cardlink .desc{color:var(--muted);font-size:13px}
+    .pill{display:inline-block;padding:4px 10px;border-radius:999px;font-size:12px;font-weight:800}
+    .pill.bad{background:rgba(255,90,90,12);border:1px solid rgba(255,90,90,25);color:#ffd1d1}
+    select.field{min-width:220px}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row" style="margin-bottom:12px"></div>
+    <div class="top">
+      <div class="brand">
+        <div class="title">Reportes</div>
+        <div class="muted" id="festivalActive">Festival: -</div>
+      </div>
+      <div class="row">
+        <a class="btn alt" href="dashboard.html">Dashboard</a>
+        <button id="btnBack" class="btn alt">Volver</button>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="margin-bottom:10px">
+        <strong>Filtros globales</strong>
+        <span id="errBox" class="pill bad" style="display:none"></span>
+      </div>
+      <div class="row">
+        <label class="muted">Desde</label>
+        <input id="fromDate" class="field" type="date" />
+        <label class="muted">Hasta</label>
+        <input id="toDate" class="field" type="date" />
+        <label class="muted">Barra</label>
+        <select id="areaSelect" class="field"></select>
+        <label class="muted">Operador</label>
+        <input id="operatorId" class="field" type="number" placeholder="ID operador" />
+        <button id="btnApply" class="btn small">Aplicar</button>
+        <button id="btnClear" class="btn small alt">Limpiar</button>
+      </div>
+      <div class="muted" style="margin-top:8px">Estos filtros se aplican a los reportes de esta seccion.</div>
+    </div>
+
+    <div class="grid3">
+      <a class="card cardlink" href="/reports-summary.html">
+        <div class="title2">Resumen general</div>
+        <div class="desc">Totales, transacciones y ventas por area.</div>
+      </a>
+      <a class="card cardlink" href="/reports-cashier.html">
+        <div class="title2">Por caja / operador</div>
+        <div class="desc">Totales agrupados por cajero u operador.</div>
+      </a>
+      <a class="card cardlink" href="/reports-products.html">
+        <div class="title2">Reporte por productos</div>
+        <div class="desc">Totales por producto y top vendidos.</div>
+      </a>
+      <a id="linkRechargesReport" class="card cardlink" href="/reports-recharges.html">
+        <div class="title2">Reporte de Recargas</div>
+        <div class="desc">Totales y detalle de recargas por periodo.</div>
+      </a>
+      <a class="card cardlink" href="/ventas.html">
+        <div class="title2">Auditoria de ventas</div>
+        <div class="desc">Detalle de ventas con filtros por area, operador y festival.</div>
+      </a>
+      <a class="card cardlink" href="/dashboard-caja/reportes.html">
+        <div class="title2">Cortes de caja</div>
+        <div class="desc">Turnos del cajero y corte por turno con PDF.</div>
+      </a>
+    </div>
+  </div>
+</body>
+</html>
+
+

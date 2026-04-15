@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Ventas - Cashless</title>
+  <script defer src="/common.js"></script>
+  <script defer src="/ventas.js"></script>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --line:#26263a; --field:#0f0f18;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Arial}
+    .wrap{max-width:1300px;margin:0 auto;padding:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .muted{color:var(--muted);font-size:12px}
+    .btn{padding:10px 12px;border-radius:10px;border:0;background:var(--blue);color:#fff;font-weight:800;cursor:pointer}
+    .btn.alt{background:var(--alt)}
+    .field{background:var(--field);border:1px solid var(--line);color:#fff;padding:10px;border-radius:10px}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{font-size:12px;color:#c9cdd3}
+    .mono{font-family:ui-monospace,Consolas,monospace}
+    .status{padding:10px;border-radius:10px;border:1px solid var(--line);background:#10101a;color:#c9cdd3}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row no-print" style="margin-bottom:12px"></div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h1 style="margin:0;font-size:22px">Ventas</h1>
+        <div class="muted" id="festivalInfo">Festival: -</div>
+      </div>
+      <div class="row no-print" style="margin-top:10px">
+        <input id="fromDate" class="field" type="date" />
+        <input id="toDate" class="field" type="date" />
+        <select id="areaSelect" class="field"></select>
+        <select id="operatorSelect" class="field"></select>
+        <input id="q" class="field" placeholder="Buscar UID / operador / id" />
+        <button id="btnApply" class="btn">Aplicar</button>
+        <button id="btnPrev" class="btn alt">Anterior</button>
+        <button id="btnNext" class="btn alt">Siguiente</button>
+        <button id="btnCsv" class="btn alt">CSV</button>
+        <button id="btnPrint" class="btn alt">Imprimir PDF</button>
+      </div>
+      <div class="muted no-print" id="rangeInfo" style="margin-top:8px">Rango aplicado: -</div>
+      <div id="totalsBox" class="status" style="margin-top:10px">
+        <div><b>Total vendido (filtro):</b> <span id="totalSoldLabel" class="mono">$0.00</span></div>
+        <div class="muted" style="margin-top:6px">
+          <span>Subtotal:</span> <span id="subtotalLabel" class="mono">$0.00</span>
+          <span> · Propina:</span> <span id="tipsLabel" class="mono">$0.00</span>
+          <span> · Donacion:</span> <span id="donationLabel" class="mono">$0.00</span>
+          <span> · Transacciones:</span> <span id="countLabel" class="mono">0</span>
+        </div>
+      </div>
+      <div id="msg" class="status no-print" style="margin-top:10px">Listo.</div>
+    </div>
+
+    <div class="card" style="overflow:auto">
+      <div class="print-header">
+        <h2>Cashless - Ventas</h2>
+        <p>
+          Festival: <span id="printFestival"></span><br>
+          Rango: <span id="printRange"></span><br>
+          Filtros: <span id="printFilters"></span><br>
+          Generado: <span id="printGenerated"></span>
+        </p>
+      </div>
+      <table>
+        <thead>
+          <tr>
+            <th>ID</th>
+            <th>Fecha</th>
+            <th>Area</th>
+            <th>Operador</th>
+            <th>Productos</th>
+            <th>Subtotal</th>
+            <th>Propina</th>
+            <th>Donacion</th>
+            <th>Total</th>
+            <th>UID</th>
+            <th>Tipo</th>
+          </tr>
+        </thead>
+        <tbody id="tbody">
+          <tr><td colspan="11" class="muted">Sin datos</td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+</body>
+</html>
+
+

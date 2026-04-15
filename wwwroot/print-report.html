@@ -1,0 +1,95 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Reporte · Cashless Social</title>
+  <style>
+    :root{
+      --bg:#ffffff; --text:#111; --muted:#666; --border:#ddd;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family: "Segoe UI", system-ui, -apple-system, Arial;
+      background:var(--bg); color:var(--text);
+      padding:24px;
+    }
+    .wrap{max-width:900px;margin:0 auto}
+    h1{margin:0 0 6px 0;font-size:22px}
+    h2{margin:16px 0 8px 0;font-size:16px}
+    .muted{color:var(--muted); font-size:12px}
+    .row{display:flex; gap:12px; flex-wrap:wrap; align-items:center}
+    .pill{border:1px solid var(--border); border-radius:999px; padding:6px 10px; font-size:12px}
+    .grid{
+      display:grid; grid-template-columns:repeat(4, minmax(0,1fr)); gap:10px;
+    }
+    .kpi{
+      border:1px solid var(--border); border-radius:10px; padding:10px;
+    }
+    .kpi b{display:block; font-size:18px}
+    table{width:100%; border-collapse:collapse; font-size:12px}
+    th,td{padding:6px; border-bottom:1px solid var(--border); text-align:left}
+    th{color:var(--muted); text-transform:uppercase; font-size:10px; letter-spacing:.04em}
+    .actions{margin:16px 0}
+    .btn{
+      padding:8px 12px; border:1px solid #222; background:#111; color:#fff;
+      border-radius:8px; cursor:pointer; font-size:12px;
+    }
+    @media print{
+      .actions{display:none}
+      body{padding:0}
+    }
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="row" style="justify-content:space-between">
+      <div>
+        <h1>Cashless Social</h1>
+        <div class="muted" id="subtitle">Reporte</div>
+      </div>
+      <div class="pill" id="metaDate">—</div>
+    </div>
+
+    <div class="row" style="margin-top:8px">
+      <div class="pill" id="metaArea">Área: —</div>
+      <div class="pill" id="metaRange">Rango: —</div>
+      <div class="pill" id="metaBy">Generado por: —</div>
+    </div>
+
+    <div class="actions">
+      <button class="btn" id="btnPrint">Imprimir</button>
+    </div>
+
+    <h2>Resumen</h2>
+    <div class="grid">
+      <div class="kpi"><div class="muted">Total ventas</div><b id="kpiTotal">—</b></div>
+      <div class="kpi"><div class="muted">Propinas</div><b id="kpiTips">—</b></div>
+      <div class="kpi"><div class="muted"># Transacciones</div><b id="kpiTx">—</b></div>
+      <div class="kpi"><div class="muted">Ticket promedio</div><b id="kpiAvg">—</b></div>
+    </div>
+
+    <h2>Ventas por operador</h2>
+    <table>
+      <thead>
+        <tr><th>Operador</th><th>Tx</th><th>Total</th></tr>
+      </thead>
+      <tbody id="operatorsBody"></tbody>
+    </table>
+
+    <h2>Transacciones recientes</h2>
+    <table>
+      <thead>
+        <tr><th>Hora</th><th>UID</th><th>Área</th><th>Operador</th><th>Total</th><th>Propina</th></tr>
+      </thead>
+      <tbody id="recentBody"></tbody>
+    </table>
+  </div>
+
+  <script src="/print-report.js" defer></script>
+</body>
+</html>
+
+

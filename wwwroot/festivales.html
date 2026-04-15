@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Festivales - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --red:#ff5a5a; --green:#35ff7a;
+      --field:#0f0f18; --border:#26263a;
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0; font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu;
+      background:radial-gradient(1200px 700px at 20% 10%, #1a1a33 0%, transparent 55%),
+                 radial-gradient(1000px 600px at 80% 80%, #111133 0%, transparent 55%),
+                 var(--bg);
+      color:var(--txt);
+      min-height:100vh;
+      padding:20px;
+    }
+    .wrap{max-width:1200px;margin:0 auto}
+    .topbar{
+      display:flex; align-items:center; justify-content:space-between;
+      gap:12px; margin-bottom:16px; flex-wrap:wrap;
+    }
+    .brand{display:flex; flex-direction:column; gap:2px}
+    .brand b{font-size:18px}
+    .brand span{color:var(--muted); font-size:12px}
+    .row{display:flex; gap:10px; align-items:center; flex-wrap:wrap}
+    .btn{
+      border:0; cursor:pointer; padding:10px 14px; border-radius:12px;
+      background:var(--blue); color:white; font-weight:800;
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.danger{background:var(--red)}
+    .btn:disabled{opacity:.45; cursor:not-allowed}
+    .card{
+      background:linear-gradient(180deg, rgba(255,255,255,.04), rgba(255,255,255,.02));
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:0 18px 60px rgba(0,0,0,.35);
+      margin-bottom:14px;
+    }
+    h2{margin:0 0 12px 0; font-size:18px}
+    .muted{color:var(--muted); font-size:12px}
+    .field, select{
+      background:var(--field); border:1px solid var(--border); color:var(--txt);
+      border-radius:12px; padding:10px 12px; outline:none;
+    }
+    table{width:100%; border-collapse:collapse}
+    th,td{padding:8px; border-bottom:1px solid rgba(255,255,255,.06); text-align:left; font-size:13px}
+    th{color:var(--muted); font-weight:700; letter-spacing:.04em; text-transform:uppercase; font-size:11px}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--border);background:#0f0f18;color:var(--muted);font-size:12px}
+    .ok{color:var(--green); font-weight:800}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div class="topbar">
+      <div class="brand">
+        <b>Cashless</b>
+        <span>Festivales</span>
+      </div>
+      <div class="row">
+        <div id="appMenu" class="row"></div>
+        <span class="pill" id="sessionInfo">-</span>
+        <button class="btn alt" id="btnBack">Volver</button>
+        <button class="btn danger" id="btnLogout">Cerrar sesion</button>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>Nuevo festival</h2>
+      <div class="row">
+        <input id="name" class="field" placeholder="Nombre" style="min-width:240px" />
+        <input id="startDate" class="field" type="date" />
+        <input id="endDate" class="field" type="date" />
+        <input id="location" class="field" placeholder="Ubicacion (opcional)" style="min-width:220px" />
+        <label class="muted" style="display:flex;gap:8px;align-items:center">
+          <input type="checkbox" id="active" />
+          Activo
+        </label>
+        <button class="btn" id="btnCreate">Crear</button>
+        <button class="btn alt" id="btnCancel" style="display:none">Cancelar</button>
+      </div>
+      <div class="muted" style="margin-top:8px" id="editHint">Nota: la ubicacion aun no se guarda (pendiente en backend).</div>
+      <div class="muted" id="msgCreate" style="margin-top:8px"></div>
+    </div>
+
+    <div class="card">
+      <div class="row" style="justify-content:space-between">
+        <h2 style="margin:0">Lista</h2>
+        <div class="row">
+          <button class="btn alt" id="btnReload">Recargar</button>
+        </div>
+      </div>
+      <div class="muted" id="msg"></div>
+      <div style="overflow:auto;margin-top:10px">
+        <table>
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Nombre</th>
+              <th>Inicio</th>
+              <th>Fin</th>
+              <th>Activo</th>
+              <th>Acciones</th>
+            </tr>
+          </thead>
+          <tbody id="rows"></tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script src="/common.js"></script>
+  <script src="/festivales.js" defer></script>
+</body>
+</html>
+
+

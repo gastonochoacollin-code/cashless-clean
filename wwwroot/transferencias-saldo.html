@@ -1,0 +1,152 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Transferencias de Saldo - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --alt:#2a2a3a; --line:#26263a; --red:#ff5a5a; --green:#35ff7a;
+      --field:#0f0f18;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Arial}
+    .wrap{width:min(1380px,96vw);margin:0 auto;padding:16px}
+    .grid{display:grid;gap:12px;grid-template-columns:1fr 1fr}
+    @media (max-width:980px){.grid{grid-template-columns:1fr}}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .stack{display:grid;gap:10px}
+    .field{
+      width:100%;padding:12px;border-radius:10px;border:1px solid var(--line);
+      background:var(--field);color:#fff;outline:none;
+    }
+    .btn{
+      display:inline-flex;align-items:center;justify-content:center;gap:8px;
+      padding:11px 14px;border-radius:12px;border:0;background:var(--blue);color:#fff;
+      font-weight:800;cursor:pointer;text-decoration:none;
+    }
+    .btn.alt{background:var(--alt)}
+    .btn.green{background:var(--green);color:#07210e}
+    .btn:disabled{opacity:.45;cursor:not-allowed}
+    .muted{color:var(--muted);font-size:12px}
+    .status{padding:12px;border-radius:10px;border:1px solid var(--line);background:#10101a;color:#c9cdd3}
+    .status.error{border-color:rgba(255,90,90,.45);color:#ffd1d1}
+    .status.ok{border-color:rgba(53,255,122,.35);color:#b6ffd0}
+    .pill{
+      display:inline-flex;align-items:center;gap:8px;padding:6px 10px;border-radius:999px;
+      background:#10101a;border:1px solid var(--line);font-size:12px;color:var(--muted)
+    }
+    .tableWrap{max-height:62vh;overflow:auto;border:1px solid var(--line);border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{background:#10101a;position:sticky;top:0}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    h1,h2{margin:0}
+    h1{font-size:24px}
+    h2{font-size:18px}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row" style="margin-bottom:12px"></div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h1>Transferencias de saldo</h1>
+      <div class="muted" id="sessionInfo" style="margin-top:8px">-</div>
+      <div id="status" class="status" style="margin-top:12px">Listo.</div>
+    </div>
+
+    <div class="grid">
+      <div class="stack">
+        <div class="card">
+          <h2>Nueva transferencia</h2>
+          <div class="muted" style="margin-top:8px">Mueve saldo entre dos usuarios finales del mismo tenant. No afecta colaboradores.</div>
+
+          <div class="stack" style="margin-top:12px">
+            <div class="row">
+              <div style="flex:1;min-width:260px">
+                <div class="muted" style="margin-bottom:6px">Usuario origen</div>
+                <select id="fromUser" class="field"></select>
+              </div>
+              <span class="pill">Saldo origen: <span id="fromBalance" class="mono">-</span></span>
+            </div>
+
+            <div class="row">
+              <div style="flex:1;min-width:260px">
+                <div class="muted" style="margin-bottom:6px">Usuario destino</div>
+                <select id="toUser" class="field"></select>
+              </div>
+              <span class="pill">Saldo destino: <span id="toBalance" class="mono">-</span></span>
+            </div>
+
+            <div class="row">
+              <input id="amount" class="field" type="number" min="1" step="1" value="100" style="max-width:200px" placeholder="Monto">
+              <input id="comment" class="field" placeholder="Motivo (opcional)" style="flex:1;min-width:260px">
+            </div>
+
+            <div class="row">
+              <button id="btnTransfer" class="btn green" type="button">Transferir saldo</button>
+              <button id="btnReloadUsers" class="btn alt" type="button">Refrescar usuarios</button>
+              <button id="btnReloadHistory" class="btn alt" type="button">Refrescar historial</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="row" style="justify-content:space-between;margin-bottom:10px">
+          <h2>Usuarios</h2>
+          <input id="q" class="field" placeholder="Buscar por nombre, email o telefono" style="min-width:260px">
+        </div>
+        <div class="tableWrap">
+          <table>
+            <thead>
+              <tr>
+                <th>ID</th>
+                <th>Nombre</th>
+                <th>Email</th>
+                <th>Telefono</th>
+                <th>Saldo</th>
+              </tr>
+            </thead>
+            <tbody id="userRows">
+              <tr><td colspan="5" class="muted">Sin datos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+    </div>
+
+    <div class="card" style="margin-top:12px">
+      <div class="row" style="justify-content:space-between;margin-bottom:10px">
+        <h2>Historial reciente</h2>
+        <span class="pill">Ultimos 100 movimientos</span>
+      </div>
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Fecha</th>
+              <th>Origen</th>
+              <th>Destino</th>
+              <th>Monto</th>
+              <th>Operador</th>
+              <th>Motivo</th>
+            </tr>
+          </thead>
+          <tbody id="historyRows">
+            <tr><td colspan="6" class="muted">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="/common.js"></script>
+  <script defer src="/transferencias-saldo.js"></script>
+</body>
+</html>

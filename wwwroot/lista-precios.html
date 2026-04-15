@@ -1,0 +1,75 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Lista de Precios - Cashless</title>
+  <style>
+    :root{
+      --bg:#0b0b0f; --card:#151520; --muted:#9aa0a6; --txt:#fff;
+      --blue:#2f7cff; --line:#26263a; --field:#0f0f18; --red:#ff5a5a;
+    }
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Arial}
+    .wrap{width:min(1400px,96vw);margin:0 auto;padding:16px}
+    .row{display:flex;gap:10px;flex-wrap:wrap;align-items:center}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:16px;padding:14px}
+    .field{background:var(--field);border:1px solid var(--line);color:#fff;border-radius:10px;padding:10px 12px;outline:none}
+    .muted{color:var(--muted);font-size:12px}
+    .status{padding:12px;border:1px solid var(--line);border-radius:10px;background:#10101a}
+    .status.error{border-color:rgba(255,90,90,.45);color:#ffd1d1}
+    .pill{display:inline-flex;gap:8px;align-items:center;padding:6px 10px;border-radius:999px;border:1px solid var(--line);background:#10101a;color:var(--muted);font-size:12px}
+    .tableWrap{overflow:auto;border:1px solid var(--line);border-radius:12px}
+    table{width:100%;border-collapse:collapse;min-width:760px}
+    th,td{padding:10px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{background:#10101a}
+    h1{margin:0;font-size:24px}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div id="appMenu" class="row" style="margin-bottom:12px"></div>
+
+    <div class="card" style="margin-bottom:12px">
+      <h1>Lista de precios</h1>
+      <div class="muted" id="sessionInfo" style="margin-top:8px">-</div>
+      <div id="status" class="status" style="margin-top:12px">Cargando...</div>
+    </div>
+
+    <div class="card" style="margin-bottom:12px">
+      <div class="row">
+        <input id="q" class="field" type="search" placeholder="Buscar producto o barra..." style="min-width:260px;flex:1 1 280px">
+        <button id="btnReload" class="field" type="button" style="cursor:pointer;min-width:140px">Actualizar</button>
+      </div>
+      <div class="row" style="margin-top:10px">
+        <span class="pill">Productos: <span id="productCount">0</span></span>
+        <span class="pill">Barras activas: <span id="areaCount">0</span></span>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="tableWrap">
+        <table>
+          <thead>
+            <tr>
+              <th>Producto</th>
+              <th>Precio base</th>
+              <th>Barras activas</th>
+              <th>Precios por barra</th>
+            </tr>
+          </thead>
+          <tbody id="priceRows">
+            <tr><td colspan="4" class="muted">Sin datos</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <script defer src="/common.js"></script>
+  <script defer src="/lista-precios.js"></script>
+</body>
+</html>

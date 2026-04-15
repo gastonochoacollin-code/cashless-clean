@@ -1,0 +1,324 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Dashboard - Cashless</title>
+
+  <script defer src="common.js"></script>
+  <script defer src="dashboard.js"></script>
+
+  <style>
+    :root{
+      --bg:#0b0b10;
+      --panel:#14141d;
+      --panel-2:#171728;
+      --muted:#a1a7b3;
+      --text:#f6f7fb;
+      --accent:#2f7cff;
+      --accent-2:#7aa6ff;
+      --green:#35ff7a;
+      --red:#ff5a5a;
+      --border:#232336;
+      --field:#10101a;
+      --shadow:0 20px 50px rgba(0,0,0,.35);
+    }
+    *{box-sizing:border-box}
+    body{
+      margin:0;
+      font-family:"Segoe UI",system-ui,-apple-system,Arial;
+      background:radial-gradient(1200px 800px at 15% 10%, rgba(47,124,255,.12), transparent 60%),
+                 radial-gradient(900px 700px at 85% 20%, rgba(122,166,255,.08), transparent 55%),
+                 var(--bg);
+      color:var(--text);
+    }
+    a{color:inherit}
+    .wrap{width:min(1400px,96vw);margin:0 auto;padding:20px 0 40px}
+    .stack{display:flex;flex-direction:column;gap:14px}
+    .row{display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+    .split{display:flex;justify-content:space-between;align-items:flex-start;gap:10px;flex-wrap:wrap}
+    .brand{display:flex;flex-direction:column;gap:8px}
+    .eyebrow{color:var(--accent-2);font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .title{font-size:32px;font-weight:1000;letter-spacing:.2px}
+    .subtitle{color:var(--muted);font-size:14px;line-height:1.45}
+    .card{
+      background:var(--panel);
+      border:1px solid var(--border);
+      border-radius:18px;
+      padding:16px;
+      box-shadow:var(--shadow);
+    }
+    .hero{
+      display:grid;
+      grid-template-columns:minmax(0,1.4fr) minmax(320px,.9fr);
+      gap:14px;
+    }
+    @media (max-width:960px){ .hero{grid-template-columns:1fr} }
+    .hero-card{display:flex;flex-direction:column;gap:14px}
+    .context-lines{display:flex;flex-direction:column;gap:6px}
+    .quick-links{display:flex;gap:10px;flex-wrap:wrap}
+    .session-actions{display:flex;gap:10px;flex-wrap:wrap;justify-content:flex-end}
+    .btn{
+      border:0;
+      cursor:pointer;
+      font-weight:800;
+      padding:10px 14px;
+      border-radius:12px;
+      background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      color:#fff;
+      text-decoration:none;
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:8px;
+    }
+    .btn.alt{background:var(--panel-2)}
+    .btn.danger{background:var(--red)}
+    .btn.small{padding:8px 12px;border-radius:10px;font-size:13px}
+    .btn.block{width:100%;padding:14px 16px}
+    .field{
+      width:100%;
+      background:var(--field);
+      border:1px solid var(--border);
+      color:#fff;
+      border-radius:12px;
+      padding:10px 12px;
+      outline:none;
+    }
+    .banner{
+      display:none;
+      background:rgba(255,90,90,.14);
+      border:1px solid rgba(255,90,90,.48);
+      color:#ffd4d4;
+      border-radius:16px;
+      padding:12px 14px;
+      white-space:pre-wrap;
+      line-height:1.45;
+      font-weight:700;
+    }
+    .grid-kpi{
+      display:grid;
+      grid-template-columns:repeat(5,minmax(0,1fr));
+      gap:12px;
+    }
+    @media (max-width:1200px){ .grid-kpi{grid-template-columns:repeat(3,minmax(0,1fr))} }
+    @media (max-width:900px){ .grid-kpi{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:560px){ .grid-kpi{grid-template-columns:1fr} }
+    .kpi{display:flex;flex-direction:column;gap:6px}
+    .kpi-top{display:flex;justify-content:space-between;gap:10px;align-items:flex-start}
+    .label{color:var(--muted);font-size:12px;text-transform:uppercase;letter-spacing:.08em}
+    .value{font-size:30px;font-weight:1000;line-height:1.1}
+    .note{color:var(--muted);font-size:12px}
+    .state{
+      padding:4px 8px;
+      border-radius:999px;
+      border:1px solid var(--border);
+      font-size:11px;
+      font-weight:900;
+      letter-spacing:.08em;
+    }
+    .state.ok{color:var(--green)}
+    .state.empty{color:#ffd580}
+    .state.error{color:#ffb0b0}
+    .grid-main{
+      display:grid;
+      grid-template-columns:minmax(0,1.2fr) minmax(320px,.8fr);
+      gap:12px;
+    }
+    @media (max-width:980px){ .grid-main{grid-template-columns:1fr} }
+    .muted{color:var(--muted);font-size:12px}
+    .muted-strong{color:#d7dbe5;font-weight:700}
+    .mono{font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace}
+    .filter-grid{
+      display:grid;
+      grid-template-columns:repeat(4,minmax(0,1fr));
+      gap:10px;
+      align-items:end;
+    }
+    @media (max-width:900px){ .filter-grid{grid-template-columns:repeat(2,minmax(0,1fr))} }
+    @media (max-width:560px){ .filter-grid{grid-template-columns:1fr} }
+    .action-grid{
+      display:grid;
+      grid-template-columns:repeat(2,minmax(0,1fr));
+      gap:10px;
+    }
+    @media (max-width:560px){ .action-grid{grid-template-columns:1fr} }
+    .section-title{font-size:18px;font-weight:1000}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:10px 8px;border-bottom:1px solid var(--border);vertical-align:top}
+    th{font-size:11px;text-transform:uppercase;letter-spacing:.08em;color:#cfd3da;text-align:left}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+
+<body>
+  <div class="wrap">
+    <div class="stack">
+      <div id="appMenu" class="row"></div>
+      <div id="errorBanner" class="banner"></div>
+
+      <div class="hero">
+        <div class="card hero-card">
+          <div class="brand">
+            <div class="eyebrow">Operacion</div>
+            <div class="title">Dashboard</div>
+            <div class="subtitle">Vista operativa para Admin y SuperAdmin con KPIs, accesos rapidos y estado de la sesion actual.</div>
+          </div>
+          <div class="context-lines">
+            <div class="muted-strong" id="sessionSummary">Sesion: -</div>
+            <div class="muted" id="festivalSummary">Festival activo: -</div>
+            <div class="muted" id="rangeSummary">Rango actual: -</div>
+          </div>
+          <div class="quick-links">
+            <a class="btn alt small" id="navPos" href="/pos.html">POS</a>
+            <a class="btn alt small" id="navRecargas" href="/recargas.html">Recargas</a>
+            <a class="btn alt small" id="navUsers" href="/usuarios.html">Usuarios</a>
+            <a class="btn alt small" id="navVentas" href="/ventas.html">Ventas</a>
+            <a class="btn alt small" id="navReportes" href="/reports.html">Reportes</a>
+            <a class="btn alt small" id="navAdmin" href="/festivales.html">Admin</a>
+          </div>
+        </div>
+
+        <div class="card hero-card">
+          <div>
+            <div class="section-title">Controles</div>
+            <div class="muted" style="margin-top:6px">Actualiza la vista o cierra la sesion actual.</div>
+          </div>
+          <div class="session-actions">
+            <button id="btnReload" class="btn alt">Actualizar</button>
+            <button id="btnLogout" class="btn danger">Cerrar sesion</button>
+          </div>
+          <div class="muted" id="statusMessage">Listo</div>
+        </div>
+      </div>
+
+      <div class="card">
+        <div class="split">
+          <div>
+            <div class="section-title">Resumen del dia / rango</div>
+            <div class="muted">El rango se guarda en `sessionStorage` y recarga los KPIs.</div>
+          </div>
+          <div class="muted" id="filterStatus">-</div>
+        </div>
+        <div class="filter-grid" style="margin-top:12px">
+          <label>
+            <div class="muted">Desde</div>
+            <input id="filterFrom" class="field" type="date">
+          </label>
+          <label>
+            <div class="muted">Hasta</div>
+            <input id="filterTo" class="field" type="date">
+          </label>
+          <button id="btnApplyFilters" class="btn">Aplicar</button>
+          <button id="btnClearFilters" class="btn alt">Limpiar</button>
+        </div>
+      </div>
+
+      <div class="grid-kpi">
+        <div class="card kpi">
+          <div class="kpi-top">
+            <div class="label">Total vendido</div>
+            <div class="state" id="kpiSoldState">-</div>
+          </div>
+          <div class="value" id="kpiSold">-</div>
+          <div class="note" id="kpiSoldNote">Cargando...</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top">
+            <div class="label">Transacciones</div>
+            <div class="state" id="kpiTransactionsState">-</div>
+          </div>
+          <div class="value" id="kpiTransactions">-</div>
+          <div class="note" id="kpiTransactionsNote">Cargando...</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top">
+            <div class="label">Usuarios</div>
+            <div class="state" id="kpiUsersState">-</div>
+          </div>
+          <div class="value" id="kpiUsers">-</div>
+          <div class="note" id="kpiUsersNote">Cargando...</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top">
+            <div class="label">Barras / Areas</div>
+            <div class="state" id="kpiAreasState">-</div>
+          </div>
+          <div class="value" id="kpiAreas">-</div>
+          <div class="note" id="kpiAreasNote">Cargando...</div>
+        </div>
+        <div class="card kpi">
+          <div class="kpi-top">
+            <div class="label">Operadores</div>
+            <div class="state" id="kpiOperatorsState">-</div>
+          </div>
+          <div class="value" id="kpiOperators">-</div>
+          <div class="note" id="kpiOperatorsNote">Cargando...</div>
+        </div>
+      </div>
+
+      <div class="grid-main">
+        <div class="card">
+          <div>
+            <div class="section-title">Acciones rapidas</div>
+            <div class="muted" style="margin-top:6px">Solo navegacion. El dashboard no realiza lecturas NFC.</div>
+          </div>
+          <div class="action-grid" style="margin-top:12px">
+            <a class="btn block" id="quickPos" href="/pos.html">Ir a POS</a>
+            <a class="btn block" id="quickRecargas" href="/recargas.html">Ir a Recargas</a>
+            <a class="btn block" id="quickUsuarios" href="/usuarios.html">Asignar pulseras (Usuarios)</a>
+            <a class="btn block" id="quickVentas" href="/ventas.html">Ver Ventas</a>
+            <a class="btn block" id="quickReportes" href="/reports.html">Reportes</a>
+            <a class="btn block alt" id="quickAdmin" href="/festivales.html">Admin</a>
+          </div>
+        </div>
+
+        <div class="card">
+          <div class="section-title">Estado</div>
+          <div class="muted" style="margin-top:6px">Los errores se muestran arriba con endpoint y el resto de la pantalla sigue disponible.</div>
+          <div class="muted" style="margin-top:12px">Festival actual:</div>
+          <div id="festivalStatus" style="font-weight:800;margin-top:6px">-</div>
+        </div>
+      </div>
+
+      <div class="card" id="recentSection" style="display:none">
+        <div class="split">
+          <div>
+            <div class="section-title">Ultimas transacciones</div>
+            <div class="muted" id="recentSummary">-</div>
+          </div>
+        </div>
+        <div style="overflow:auto;margin-top:10px">
+          <table>
+            <thead>
+              <tr>
+                <th style="width:160px">Fecha</th>
+                <th>Descripcion</th>
+                <th style="width:140px">Monto</th>
+                <th style="width:120px">Estado</th>
+              </tr>
+            </thead>
+            <tbody id="recentRows">
+              <tr><td colspan="4" class="muted">Sin datos</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </div>
+
+      <div class="card" id="resetOpsCard" style="display:none">
+        <div class="split">
+          <div>
+            <div class="section-title">Reset de datos operativos</div>
+            <div class="muted">Borra ventas, recargas, turnos y auditorias. No toca usuarios ni saldos.</div>
+          </div>
+          <div class="row">
+            <button id="btnResetOps" class="btn danger small">Reset operativo</button>
+          </div>
+        </div>
+        <div class="muted" id="resetOpsMsg" style="margin-top:8px"></div>
+      </div>
+    </div>
+  </div>
+</body>
+</html>

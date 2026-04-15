@@ -1,0 +1,281 @@
+<!doctype html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>App Map - Cashless</title>
+  <script defer src="/common.js"></script>
+  <style>
+    :root{--bg:#0b0b0f;--card:#151520;--line:#26263a;--txt:#fff;--muted:#9aa0a6}
+    *{box-sizing:border-box}
+    body{margin:0;background:var(--bg);color:var(--txt);font-family:system-ui,Arial}
+    .wrap{width:min(1400px,96vw);margin:0 auto;padding:16px}
+    .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:14px;margin-bottom:12px}
+    .hero-balance{display:flex;justify-content:space-between;gap:12px;align-items:flex-start;flex-wrap:wrap}
+    .hero-balance .eyebrow{color:#7aa6ff;font-size:12px;font-weight:900;letter-spacing:.12em;text-transform:uppercase}
+    .hero-balance .value{font-size:34px;font-weight:1000;line-height:1.05}
+    .hero-balance .meta{display:flex;gap:14px;flex-wrap:wrap;color:var(--muted);font-size:12px}
+    .hero-balance .status{font-size:12px;color:var(--muted)}
+    h1,h2{margin:0 0 10px 0}
+    .muted{color:var(--muted);font-size:12px}
+    .grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px}
+    @media (max-width:1000px){.grid{grid-template-columns:1fr}}
+    table{width:100%;border-collapse:collapse}
+    th,td{padding:8px;border-bottom:1px solid var(--line);text-align:left;vertical-align:top}
+    th{font-size:12px;color:#c9cdd3}
+    code{background:#0f0f18;padding:2px 6px;border-radius:8px}
+    .p0{color:#ff9a9a}.p1{color:#ffd58a}.p2{color:#a4ffd0}
+  </style>
+  <link rel="icon" type="image/png" href="/assets/favicon.png">
+  <link rel="stylesheet" href="/site.css">
+</head>
+<body>
+  <div class="wrap">
+    <div id="appMenu" style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px"></div>
+    <div class="card hero-balance">
+      <div>
+        <div class="eyebrow">Saldo disponible</div>
+        <div class="value" id="activeUsersBalanceValue">Cargando...</div>
+        <div class="meta">
+          <div id="activeUsersCount">Usuarios: -</div>
+          <div id="activeUsersSpent">Gastado acumulado: -</div>
+        </div>
+      </div>
+      <div class="status" id="activeUsersBalanceStatus">Lectura de solo consulta desde /api/users/summary.</div>
+    </div>
+    <div class="card">
+      <h1>Mapa de la Aplicacion</h1>
+      <div class="muted">Mapa funcional actualizado con dashboards por rol, permisos UI, inventarios en backend real y nuevas pantallas operativas.</div>
+      <div class="muted" style="margin-top:6px">Ultima actualizacion: 2026-03-03</div>
+    </div>
+
+    <div class="card">
+      <h2>Actualizaciones recientes</h2>
+      <div class="muted">Dashboard principal y panel operativo por rol con accesos dinamicos.</div>
+      <div class="muted">Caja/Cortes consolidado en <code>/dashboard-caja/</code> y <code>/dashboard-caja/reportes.html</code>; dashboard de caja sin NFC.</div>
+      <div class="muted">Nuevas pantallas: <code>/registro-usuarios.html</code>, <code>/transferencias-saldo.html</code>, <code>/lista-precios.html</code>, <code>/reportes-barra.html</code>, <code>/inventarios.html</code>, <code>/inventarios-reportes.html</code>, <code>/asignacion-roles.html</code>.</div>
+      <div class="muted">Inventario en backend enlazado a ventas reales, entradas a almacen y transferencias por barra.</div>
+      <div class="muted">Lectores y pantallas NFC usan <code>terminalId</code> para aislar UIDs por PC (querystring o header <code>X-Terminal-Id</code>; si falta, el backend responde error claro).</div>
+    </div>
+
+    <div class="card">
+      <h2>A) Mapa del sitio (navegacion real)</h2>
+      <table>
+        <thead>
+          <tr><th>Ruta</th><th>Modulo</th><th>Rol recomendado</th><th>Descripcion</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><code>/login.html</code></td><td>Acceso</td><td>Todos</td><td>Inicio de sesion (token + tenant en storage).</td></tr>
+          <tr><td><code>/index.html</code></td><td>Entrada</td><td>Todos</td><td>Entrada web / redireccion principal.</td></tr>
+          <tr><td><code>/dashboard.html</code></td><td>Dashboard</td><td>Admin/Jefaturas</td><td>Accesos rapidos por rol.</td></tr>
+          <tr><td><code>/pos.html</code></td><td>Ventas</td><td>Vendedor/Barra</td><td>Cobros por productos, lectura UID, cobro <code>/api/charge-v2</code>.</td></tr>
+          <tr><td><code>/recargas.html</code></td><td>Recargas</td><td>Cajero/Admin</td><td>Topups con UID, forma de pago y flujo <code>/api/topups</code> con fallback.</td></tr>
+          <tr><td><code>/registro-usuarios.html</code></td><td>Clientes</td><td>Cajero/JefeOperativo/Admin</td><td>Alta de usuarios finales, asignacion y reasignacion de tarjeta.</td></tr>
+          <tr><td><code>/transferencias-saldo.html</code></td><td>Clientes</td><td>Cajero/JefeOperativo/Admin</td><td>Transferencia de saldo entre usuarios finales del mismo tenant.</td></tr>
+          <tr><td><code>/operators.html</code></td><td>Operadores</td><td>Admin</td><td>Gestion de operadores y roles.</td></tr>
+          <tr><td><code>/barras.html</code></td><td>Areas/Barra</td><td>Admin/Jefaturas</td><td>Catalogo de barras/areas.</td></tr>
+          <tr><td><code>/menus.html</code></td><td>Productos</td><td>Admin/Jefaturas</td><td>Catalogo de productos por area.</td></tr>
+          <tr><td><code>/ops.html</code></td><td>Operativo</td><td>Jefaturas</td><td>Panel operativo con accesos a POS, menus, reportes de barra, inventarios y lista de precios.</td></tr>
+          <tr><td><code>/lista-precios.html</code></td><td>Consulta</td><td>Todos</td><td>Tabla informativa de productos, precio base y barras activas.</td></tr>
+          <tr><td><code>/reportes-barra.html</code></td><td>Reportes</td><td>JefeDeBarra/JefeDeStand/Admin</td><td>Ventas de barra, recientes, turnos de barra e impresion PDF.</td></tr>
+          <tr><td><code>/inventarios.html</code></td><td>Inventarios</td><td>Jefaturas de barra/Admin</td><td>Existencias dinamicas por ventas, entradas a almacen y transferencias.</td></tr>
+          <tr><td><code>/inventarios-reportes.html</code></td><td>Inventarios</td><td>Jefaturas de barra/Admin</td><td>Reporte imprimible de movimientos y snapshot actual.</td></tr>
+          <tr><td><code>/festivales.html</code></td><td>Festivales</td><td>Admin</td><td>Alta y configuracion de festivales.</td></tr>
+          <tr><td><code>/permisos.html</code></td><td>Permisos</td><td>Admin</td><td>Matriz de permisos por rol.</td></tr>
+          <tr><td><code>/asignacion-roles.html</code></td><td>Permisos</td><td>SuperAdmin</td><td>Asignacion de rol a colaboradores.</td></tr>
+          <tr><td><code>/ventas.html</code></td><td>Auditoria</td><td>Admin</td><td>Ventas filtradas (areas, operador, festival).</td></tr>
+          <tr><td><code>/reports.html</code></td><td>Reportes</td><td>Admin/Jefaturas</td><td>Hub de reportes y filtros globales.</td></tr>
+          <tr><td><code>/reports-recharges.html</code></td><td>Reportes</td><td>Admin/SuperAdmin</td><td>Totales y detalle de recargas por periodo.</td></tr>
+          <tr><td><code>/dashboard-caja/index.html</code></td><td>Caja</td><td>Cajero</td><td>Shell de caja sin botones inferiores; navegacion por menu superior.</td></tr>
+          <tr><td><code>/dashboard-caja/reportes.html</code></td><td>Caja</td><td>Cajero/Jefaturas</td><td>Cortes por turno y PDF.</td></tr>
+          <tr><td><code>/app-map.html</code></td><td>Mapa</td><td>Admin</td><td>Inventario tecnico y flujos.</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="card">
+      <h2>B) Analisis funcional (alto nivel)</h2>
+      <div class="muted"><b>Sesion y tenant:</b> <code>cashless.session</code> en <code>localStorage</code> define <code>operatorId</code>, <code>token</code>, <code>tenantId</code>. Headers base en <code>common.js</code>: <code>X-Operator-Id</code>, <code>X-Operator-Token</code>, <code>X-Tenant-Id</code>, <code>Authorization</code>.</div>
+      <div class="muted"><b>Festival:</b> se guarda en <code>cashless.festivalId</code> y se envia como <code>X-Festival-Id</code> para clamp en reportes/ventas.</div>
+      <div class="muted"><b>NFC / UID:</b> lector publica en <code>/api/uid</code> y lectura consume en <code>/api/last-uid</code> con <code>terminalId</code> (aislamiento por PC).</div>
+      <div class="muted"><b>Ventas:</b> POS usa areas/productos y cobra con <code>/api/charge-v2</code>; inventarios se cruzan contra ventas reales por <code>SaleItems</code>.</div>
+      <div class="muted"><b>Recargas:</b> caja usa <code>/api/topups</code> (o fallback legacy) con <code>paymentMethod</code>; cortes y reportes en <code>/dashboard-caja/*</code>.</div>
+      <div class="muted"><b>Inventarios:</b> ya existe backend dedicado con <code>/api/inventory/*</code>; el estado vive en base real por tenant y se mueve por entradas, transferencias y ventas.</div>
+      <div class="muted"><b>Reportes:</b> <code>/reports.html</code> define filtros globales y <code>/reportes-barra.html</code> cubre la vista operativa de barra.</div>
+    </div>
+
+    <div class="card">
+      <h2>B.1) README rapido de lectores</h2>
+      <div class="muted">Cada lector debe correr apuntando al backend y a una terminal unica. El tercer parametro es el <code>terminalId</code> que aisla la lectura por PC.</div>
+      <div class="muted" style="margin-top:8px"><b>Formato:</b> <code>dotnet run -- "BASE_URL" "/api/uid" "TERMINAL_ID"</code></div>
+      <table style="margin-top:10px">
+        <thead>
+          <tr><th>Escenario</th><th>Comando</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td>Lector barra</td>
+            <td><code>dotnet run -- "http://192.168.1.214:5001/" "/api/uid" "BARRA-02"</code></td>
+          </tr>
+          <tr>
+            <td>Lector barra 1</td>
+            <td><code>dotnet run -- "http://192.168.1.214:5001/" "/api/uid" "BARRA-01"</code></td>
+          </tr>
+          <tr>
+            <td>Lector comida</td>
+            <td><code>dotnet run -- "http://192.168.1.214:5001/" "/api/uid" "COMIDA-01"</code></td>
+          </tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:8px"><b>Regla operativa:</b> la terminal configurada en el lector debe coincidir con la terminal guardada en la pantalla web de esa misma PC.</div>
+      <div class="muted"><b>Ejemplo:</b> si el lector corre con <code>"COMIDA-01"</code>, en <code>/pos.html</code> o <code>/recargas.html</code> de esa PC debes seleccionar <code>COMIDA-01</code>.</div>
+      <div class="muted"><b>Si no se manda terminalId:</b> el backend responde <code>terminalId_required</code> para evitar mezclar lecturas entre equipos.</div>
+    </div>
+
+    <div class="card">
+      <h2>C) Paginas por rol</h2>
+      <div class="grid">
+        <div>
+          <b>Admin / SuperAdmin</b>
+          <div class="muted">
+            dashboard.html, registro-usuarios.html, transferencias-saldo.html, festivales.html, recargas.html, ventas.html,<br/>
+            reports.html, reports-products.html, reports-recharges.html, reportes-barra.html,<br/>
+            pos.html, barras.html, menus.html, inventarios.html, inventarios-reportes.html,<br/>
+            operators.html, permisos.html, asignacion-roles.html, lista-precios.html, app-map.html,<br/>
+            dashboard-caja/index.html, dashboard-caja/reportes.html
+          </div>
+        </div>
+        <div>
+          <b>Jefaturas (JefeOperativo, JefeDeBarra, JefeDeStand)</b>
+          <div class="muted">
+            dashboard.html, ops.html, pos.html, barras.html, menus.html, recargas.html, transferencias-saldo.html,<br/>
+            reportes-barra.html, inventarios.html, inventarios-reportes.html, lista-precios.html,<br/>
+            dashboard-caja/reportes.html, reports.html (segun permisos)
+          </div>
+        </div>
+        <div>
+          <b>Cajero</b>
+          <div class="muted">
+            dashboard-caja/index.html, dashboard-caja/reportes.html, recargas.html, transferencias-saldo.html,<br/>
+            registro-usuarios.html, lista-precios.html
+          </div>
+        </div>
+        <div>
+          <b>Vendedor / CajeroDeBarra</b>
+          <div class="muted">
+            pos.html, lista-precios.html
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>D) Pagina -> Endpoints -> Headers</h2>
+      <table>
+        <thead>
+          <tr><th>Pagina</th><th>Endpoints</th><th>Headers requeridos</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>registro-usuarios.html</td><td><code>/api/clients</code>, <code>/api/last-uid</code>, <code>/api/assign-card</code>, <code>/api/reassign-card</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code></td></tr>
+          <tr><td>transferencias-saldo.html</td><td><code>/api/clients</code>, <code>/api/clients/transfers</code>, <code>/api/clients/transfer-balance</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code></td></tr>
+          <tr><td>recargas.html</td><td><code>/api/last-uid</code>, <code>/api/cards/{uid}</code>, <code>/api/topups</code>, fallback <code>/api/topup</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code></td></tr>
+          <tr><td>pos.html (POS)</td><td><code>/api/areas</code>, <code>/api/areas/{id}/products</code>, <code>/api/last-uid</code>, <code>/api/charge-v2</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code>, <code>X-Festival-Id</code> opcional</td></tr>
+          <tr><td>reports*.html</td><td><code>/api/reports/summary</code>, <code>/api/reports/by-cashier</code>, <code>/api/reports/by-product</code>, <code>/api/reports/recent</code>, <code>/api/reports/cashier/summary</code>, <code>/api/reports/recharges-rows</code>, <code>/api/festivals</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code>, <code>X-Festival-Id</code> para clamp de reportes</td></tr>
+          <tr><td>ventas.html</td><td><code>/api/sales</code>, <code>/api/areas</code>, <code>/api/operators</code>, <code>/api/festivals</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code>, <code>X-Festival-Id</code> para clamp</td></tr>
+          <tr><td>lista-precios.html</td><td><code>/api/products</code>, <code>/api/areas</code>, <code>/api/areas/{id}/products</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code></td></tr>
+          <tr><td>reportes-barra.html</td><td><code>/api/reports/summary</code>, <code>/api/reports/sales-by-area</code>, <code>/api/sales</code>, <code>/api/cashier/shifts</code>, <code>/api/shifts/current</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code>, <code>X-Festival-Id</code> opcional</td></tr>
+          <tr><td>inventarios*.html</td><td><code>/api/inventory/summary</code>, <code>/api/inventory/movements</code>, <code>/api/inventory/warehouse-in</code>, <code>/api/inventory/transfer</code>, <code>/api/products</code>, <code>/api/areas</code>, <code>/api/areas/{id}/products</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code></td></tr>
+          <tr><td>dashboard-caja/index.html</td><td>Sin llamadas criticas; solo menu de navegacion</td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code> en vistas hijas</td></tr>
+          <tr><td>dashboard-caja/reportes.html</td><td><code>/api/cashier/shifts</code>, <code>/api/reports/cashier/summary</code>, <code>/api/recharges/reports/shift/{shiftId}</code>, <code>/api/recharges/reports/shift/{shiftId}/pdf-model</code></td><td><code>X-Tenant-Id</code>, <code>Authorization</code>/<code>X-Operator-Token</code></td></tr>
+        </tbody>
+      </table>
+      <div class="muted" style="margin-top:8px">
+        Nota NFC: <code>/api/uid</code> y <code>/api/last-uid</code> aceptan <code>terminalId</code> por querystring o header <code>X-Terminal-Id</code>. Si no se envia, el backend responde <code>terminalId_required</code>.
+      </div>
+    </div>
+
+    <div class="card">
+      <h2>E) Duplicados / Legacy</h2>
+      <div class="muted">Se mantienen alias legacy (incluye <code>/uid</code>, <code>/last-uid</code>, <code>/topup</code>, <code>/charge*</code>, <code>/users*</code>, <code>/assign-card</code>, <code>/reassign-card</code>, <code>/cards/{uid}</code>) para compatibilidad temporal. Oficial: <code>/api/*</code>.</div>
+    </div>
+
+    <div class="card">
+      <h2>F) Pendientes</h2>
+      <div><span class="p0"><b>P0</b></span> Implementar ticket automatico post-cobro en <code>pos.html</code> con saldo antes/despues, compra desglosada, usuario, hora, barra y operador; opcion recomendada: vista de ticket separada + <code>window.print()</code> tras cobro exitoso.</div>
+      <div><span class="p0"><b>P0</b></span> Consolidar permisos backend de reportes para jefaturas sin exponer ventas globales a roles operativos.</div>
+      <div><span class="p1"><b>P1</b></span> Unificar endpoint oficial de recargas y retirar fallback legacy cuando ya no haya clientes viejos.</div>
+      <div><span class="p1"><b>P1</b></span> Unificar encoding de textos JS/HTML para eliminar mojibake.</div>
+      <div><span class="p2"><b>P2</b></span> Agregar reportes de inventario con CSV y cierre por periodo sobre <code>/api/inventory/*</code>.</div>
+    </div>
+  </div>
+  <script>
+    function formatMoneyMap(value){
+      const amount = Number(value);
+      if(!Number.isFinite(amount)) return "-";
+      return amount.toLocaleString("es-MX", { style: "currency", currency: "MXN" });
+    }
+
+    function formatIntMap(value){
+      const amount = Number(value);
+      if(!Number.isFinite(amount)) return "-";
+      return amount.toLocaleString("es-MX", { maximumFractionDigits: 0 });
+    }
+
+    async function fetchUsersSummaryWithFallback(){
+      try{
+        const summary = await apiJson("/api/users/summary", { method: "GET" });
+        return {
+          count: Number(summary?.count || 0),
+          totalBalance: Number(summary?.totalBalance || 0),
+          totalSpent: Number(summary?.totalSpent || 0),
+          source: "/api/users/summary"
+        };
+      }catch(summaryError){
+        const users = await apiJson("/api/users", { method: "GET" });
+        const rows = Array.isArray(users) ? users : [];
+        const totals = rows.reduce((acc, row) => {
+          acc.count += 1;
+          acc.totalBalance += Number(row?.balance ?? row?.Balance ?? 0) || 0;
+          acc.totalSpent += Number(row?.totalSpent ?? row?.TotalSpent ?? 0) || 0;
+          return acc;
+        }, { count: 0, totalBalance: 0, totalSpent: 0 });
+
+        return {
+          ...totals,
+          source: "/api/users",
+          warning: String(summaryError?.message || "No se pudo leer /api/users/summary")
+        };
+      }
+    }
+
+    async function loadTopBalanceSummary(){
+      const balanceEl = document.getElementById("activeUsersBalanceValue");
+      const countEl = document.getElementById("activeUsersCount");
+      const spentEl = document.getElementById("activeUsersSpent");
+      const statusEl = document.getElementById("activeUsersBalanceStatus");
+      if(!balanceEl || !countEl || !spentEl || !statusEl) return;
+
+      try{
+        requireSession();
+        const summary = await fetchUsersSummaryWithFallback();
+        balanceEl.textContent = formatMoneyMap(summary.totalBalance);
+        countEl.textContent = `Usuarios: ${formatIntMap(summary.count)}`;
+        spentEl.textContent = `Gastado acumulado: ${formatMoneyMap(summary.totalSpent)}`;
+        statusEl.textContent = summary.warning
+          ? `Lectura actual via ${summary.source}. Fallback aplicado porque fallo /api/users/summary.`
+          : "Lectura actual del saldo no gastado de usuarios.";
+      }catch(error){
+        balanceEl.textContent = "-";
+        countEl.textContent = "Usuarios: -";
+        spentEl.textContent = "Gastado acumulado: -";
+        statusEl.textContent = `No se pudo leer el resumen: ${String(error?.message || "Error")}`;
+      }
+    }
+
+    document.addEventListener("DOMContentLoaded", () => {
+      renderAppMenu("appMenu", "/app-map.html");
+      loadTopBalanceSummary();
+    });
+  </script>
+</body>
+</html>
