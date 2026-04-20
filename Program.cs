@@ -131,6 +131,14 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<CashlessContext>();
     var auth = scope.ServiceProvider.GetRequiredService<IAuthService>();
     var startupLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupHardening");
+    var resetDbOnStart = app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("ResetDbOnStart");
+
+    if (resetDbOnStart)
+    {
+        db.Database.EnsureDeleted();
+        Console.WriteLine("DB RESET OK");
+    }
+
     db.Database.Migrate();
 
     // Compatibilidad local sin depender de nuevas migraciones.
@@ -371,13 +379,7 @@ using (var scope = app.Services.CreateScope())
         }
     }
 
-    if (!db.Tenants.Any())
-    {
-        db.Tenants.Add(new Tenant { Name = "Default" });
-        db.SaveChanges();
-    }
-
-    var defaultTenantId = db.Tenants.OrderBy(t => t.Id).Select(t => t.Id).FirstOrDefault();
+    var defaultTenantId = SeedData(db, auth);
 
     // Fix legacy TenantId=0 when single-tenant
     if (db.Tenants.Count() == 1 && defaultTenantId > 0)
@@ -402,41 +404,80 @@ using (var scope = app.Services.CreateScope())
         Fix(db.AreaProducts.Where(ap => ap.TenantId == 0), "AreaProducts");
         Fix(db.Festivals.Where(f => f.TenantId == 0), "Festivals");
     }
+}
 
-    if (!db.Festivals.Any(f => f.TenantId == defaultTenantId))
+int SeedData(CashlessContext db, IAuthService auth)
+{
+    var tenant = db.Tenants.OrderBy(t => t.Id).FirstOrDefault();
+    if (tenant is null)
     {
-        var today = DateTimeProvider.TodayMexico();
-        db.Festivals.Add(new Festival
+        tenant = new Tenant { Name = "Default" };
+        db.Tenants.Add(tenant);
+        db.SaveChanges();
+    }
+
+    var today = DateTimeProvider.TodayMexico();
+    var festival = db.Festivals.FirstOrDefault(f => f.TenantId == tenant.Id && f.Name == "Festival Default");
+    if (festival is null)
+    {
+        festival = new Festival
         {
             Name = "Festival Default",
             StartDate = today,
             EndDate = today.AddDays(30),
             IsActive = true,
-            TenantId = defaultTenantId
-        });
-        db.SaveChanges();
+            TenantId = tenant.Id
+        };
+        db.Festivals.Add(festival);
     }
-
-    if (!db.Operators.Any(o => o.TenantId == defaultTenantId))
+    else
     {
-        var aGeneral = new Area { Name = "General", IsActive = true, Type = AreaType.General, TenantId = defaultTenantId };
-        var aBarra1 = new Area { Name = "Barra 1", IsActive = true, Type = AreaType.Barra, TenantId = defaultTenantId };
-        var aStand1 = new Area { Name = "Stand 1", IsActive = true, Type = AreaType.Stand, TenantId = defaultTenantId };
+        festival.StartDate = today;
+        festival.EndDate = today.AddDays(30);
+        festival.IsActive = true;
+    }
 
-        db.Areas.AddRange(aGeneral, aBarra1, aStand1);
-        db.SaveChanges();
-
-        db.Operators.AddRange(
-            new Operator { Name = "Super Admin", Role = OperatorRole.SuperAdmin, AreaId = aGeneral.Id, PinHash = auth.HashPin("9999"), IsActive = true, TenantId = defaultTenantId },
-            new Operator { Name = "Admin", Role = OperatorRole.Admin, AreaId = aGeneral.Id, PinHash = auth.HashPin("1111"), IsActive = true, TenantId = defaultTenantId },
-            new Operator { Name = "Jefe Operativo", Role = OperatorRole.JefeOperativo, AreaId = aGeneral.Id, PinHash = auth.HashPin("2222"), IsActive = true, TenantId = defaultTenantId },
-            new Operator { Name = "Cajero", Role = OperatorRole.Cajero, AreaId = aGeneral.Id, PinHash = auth.HashPin("5555"), IsActive = true, TenantId = defaultTenantId },
-            new Operator { Name = "Jefe Barra 1", Role = OperatorRole.JefeDeBarra, AreaId = aBarra1.Id, PinHash = auth.HashPin("3333"), IsActive = true, TenantId = defaultTenantId },
-            new Operator { Name = "Jefe Stand 1", Role = OperatorRole.JefeDeStand, AreaId = aStand1.Id, PinHash = auth.HashPin("4444"), IsActive = true, TenantId = defaultTenantId }
-        );
-
+    var area = db.Areas.FirstOrDefault(a => a.TenantId == tenant.Id && a.Name == "General");
+    if (area is null)
+    {
+        area = new Area
+        {
+            Name = "General",
+            IsActive = true,
+            Type = AreaType.General,
+            TenantId = tenant.Id
+        };
+        db.Areas.Add(area);
         db.SaveChanges();
     }
+
+    var adminPinHash = auth.HashPin("1234");
+    var admin = db.Operators.FirstOrDefault(o => o.TenantId == tenant.Id && o.Name == "Admin");
+    if (admin is null)
+    {
+        admin = new Operator
+        {
+            Name = "Admin",
+            Role = OperatorRole.Admin,
+            AreaId = area.Id,
+            PinHash = adminPinHash,
+            IsActive = true,
+            TenantId = tenant.Id
+        };
+        db.Operators.Add(admin);
+        Console.WriteLine("ADMIN USER CREATED");
+    }
+    else
+    {
+        admin.Role = OperatorRole.Admin;
+        admin.AreaId = area.Id;
+        admin.PinHash = adminPinHash;
+        admin.IsActive = true;
+        Console.WriteLine("ADMIN USER CREATED");
+    }
+
+    db.SaveChanges();
+    return tenant.Id;
 }
 
 

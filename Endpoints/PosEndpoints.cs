@@ -11,7 +11,7 @@ public static class PosEndpoints
 {
     public static WebApplication MapPosEndpoints(this WebApplication app)
     {
-        async Task<IResult> SetUid(UidRequest req, IUidState uidState, HttpContext http, string? terminalId)
+        IResult SetUid(UidRequest req, IUidState uidState, HttpContext http, string? terminalId)
         {
             var uid = NormalizeUid(req.uid);
             if (string.IsNullOrWhiteSpace(uid))
@@ -27,7 +27,7 @@ public static class PosEndpoints
         // LEGACY ALIAS (mantener mientras haya clientes cacheados)
         app.MapPost("/uid", SetUid).AllowAnonymous();
 
-        async Task<IResult> GetLastUid(IUidState uidState, HttpContext http, string? terminalId)
+        IResult GetLastUid(IUidState uidState, HttpContext http, string? terminalId)
         {
             var terminal = ResolveRequiredTerminalId(http, terminalId);
             if (terminal.Error is not null) return terminal.Error;

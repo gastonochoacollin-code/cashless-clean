@@ -15,6 +15,9 @@ function saveSession(s){
 }
 function clearSession(){
   localStorage.removeItem("cashless.session");
+  localStorage.removeItem("token");
+  localStorage.removeItem("jwt");
+  localStorage.removeItem("authToken");
 }
 function requireSession(){
   const s = getSession();
@@ -190,6 +193,8 @@ async function apiFetch(path, options = {}){
   const url = `${API_BASE}${path}`;
 
   try{
+    cashlessPendingRequests += 1;
+    setGlobalBusy(true);
     const res = await fetch(url, {
       ...options,
       headers: apiHeaders(options.headers || {}),
@@ -199,6 +204,7 @@ async function apiFetch(path, options = {}){
 
     if(res.status === 401){
       clearSession();
+      showToast("Sesion expirada. Inicia sesion nuevamente.", "error", 4500);
       window.location.href = "/login.html";
     }
 
@@ -211,8 +217,15 @@ async function apiFetch(path, options = {}){
       e.url = e.url || url;
       e.method = e.method || method;
     }
+    if(e?.name === "AbortError"){
+      showToast("La solicitud tardo demasiado. Revisa red o servidor.", "error", 4500);
+    }else{
+      showToast("No se pudo completar la solicitud.", "error", 3600);
+    }
     throw e;
   }finally{
+    cashlessPendingRequests = Math.max(0, cashlessPendingRequests - 1);
+    setGlobalBusy(cashlessPendingRequests > 0);
     cancel();
   }
 }
@@ -382,96 +395,185 @@ function requireUiPermission(permissionKey, redirectTo = "/dashboard.html"){
   throw new Error(`Missing UI permission: ${permissionKey}`);
 }
 
-function renderAppMenu(containerId, currentPath = ""){
-  const host = $(containerId);
-  if(!host) return;
-  const brandHtml = `<div class="brand" style="margin-right:8px">
-    <img src="/assets/logo-horizontal.png" alt="Cashless Logo" class="logo-horizontal">
-  </div>`;
-
-  const links = [
-    ["Dashboard", "/dashboard.html"],
-    ["Cajero", "/dashboard-caja/"],
-    ["POS", "/pos.html"],
-    ["Barras", "/barras.html"],
-    ["Menus", "/menus.html"],
-    ["Colaboradores", "/operators.html"],
-    ["Usuarios", "/usuarios.html"],
-    ["Transferencias", "/transferencias-saldo.html"],
-    ["Lista de precios", "/lista-precios.html"],
-    ["Recargas", "/recargas.html"],
-    ["Ventas", "/ventas.html"],
-    ["Festivales", "/festivales.html"],
-    ["Permisos", "/permisos.html"],
-    ["Asignacion", "/asignacion-roles.html"],
-    ["Mapa", "/app-map.html"],
-    ["Reportes", "/reports.html"]
-  ];
-
-  const roleName = normalizeRoleName(getSession()?.role || getSession()?.Role);
-  const isAdmin = roleName === "Admin" || roleName === "SuperAdmin";
-  const isCashier = roleName === "Cajero";
-
-  const allowed = links.filter(([label]) => {
-    if(label === "Dashboard") return roleHasPermission("dashboard_view", roleName);
-    if(label === "Cajero") return isCashier || roleHasPermission("topup", roleName);
-    if(label === "POS") return roleHasPermission("pos_use", roleName) || roleHasPermission("charge", roleName);
-    if(label === "Barras") return roleHasPermission("areas_manage", roleName);
-    if(label === "Menus") return roleHasPermission("menus_manage", roleName) || roleName === "JefeDeBarra" || roleName === "JefeDeStand";
-    if(label === "Colaboradores") return roleHasPermission("operators_manage", roleName);
-    if(label === "Usuarios") return roleHasPermission("users_manage", roleName);
-    if(label === "Transferencias") return roleHasPermission("users_manage", roleName);
-    if(label === "Lista de precios") return true;
-    if(label === "Recargas") return roleHasPermission("topup", roleName);
-    if(label === "Ventas") return roleHasPermission("reports_view", roleName);
-    if(label === "Festivales") return isAdmin;
-    if(label === "Permisos") return roleHasPermission("permissions_view", roleName);
-    if(label === "Asignacion") return roleHasPermission("permissions_view", roleName);
-    if(label === "Mapa") return isAdmin;
-    if(label === "Reportes") return roleHasPermission("reports_view", roleName);
-    return false;
-  });
-
-  const normalizePath = (p) => String(p || "").toLowerCase();
-  const current = normalizePath(currentPath || window.location.pathname);
-  const baseStyle = "display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:#2a2a3a;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.08)";
-
-  host.innerHTML = brandHtml + allowed.map(([label, href]) => {
-    const active = current.endsWith(normalizePath(href)) ? ";outline:1px solid rgba(47,124,255,.6);background:rgba(47,124,255,.18)" : "";
-    return `<a class="btn alt" href="${href}" style="${baseStyle}${active}">${label}</a>`;
-  }).join("");
+function currentSessionLabel(){
+  const s = getSession();
+  if(!s) return "Sin sesion";
+  const name = s.name || s.operatorName || "Operador";
+  const role = normalizeRoleName(s.role || s.Role) || s.role || s.Role || "";
+  const tenant = s.tenantId ? `Tenant ${s.tenantId}` : "Tenant -";
+  return `${name}${role ? ` · ${role}` : ""} · ${tenant}`;
 }
 
-function renderCashierMenu(containerId, currentPath = ""){
-  const host = $(containerId);
-  if(!host) return;
-  const brandHtml = `<div class="brand" style="margin-right:8px">
-    <img src="/assets/logo-horizontal.png" alt="Cashless Logo" class="logo-horizontal">
-  </div>`;
+const CASHLESS_NAV_ITEMS = [
+  { label:"Inicio", href:"/ops.html", permission:"dashboard_view", roles:["JefeDeBarra", "JefeDeStand"] },
+  { label:"Dashboard", href:"/dashboard.html", permission:"dashboard_view", roles:["SuperAdmin", "Admin", "JefeOperativo"] },
+  { label:"Caja", href:"/dashboard-caja/", permission:"topup", roles:["Cajero", "SuperAdmin", "Admin", "JefeOperativo"] },
+  { label:"Recargas", href:"/recargas.html", permission:"topup" },
+  { label:"Usuarios", href:"/usuarios.html", permission:"users_manage" },
+  { label:"POS", href:"/pos.html", anyPermission:["pos_use", "charge"] },
+  { label:"Barras", href:"/barras.html", permission:"areas_manage" },
+  { label:"Menus", href:"/menus.html", anyPermission:["menus_manage", "areas_manage"], roles:["JefeDeBarra", "JefeDeStand"] },
+  { label:"Precios", href:"/lista-precios.html", publicForSession:true },
+  { label:"Inventario", href:"/inventarios.html", anyPermission:["menus_manage", "areas_manage"], roles:["JefeDeBarra", "JefeDeStand"], activePaths:["/inventarios-reportes.html"] },
+  { label:"Transferencias", href:"/transferencias-saldo.html", permission:"users_manage" },
+  { label:"Reportes", href:"/reports.html", permission:"reports_view", activePaths:["/reports-summary.html", "/reports-cashier.html", "/reports-products.html", "/reports-recharges.html", "/reportes-barra.html"] },
+  { label:"Ventas", href:"/ventas.html", permission:"reports_view" },
+  { label:"Operadores", href:"/operators.html", permission:"operators_manage" },
+  { label:"Festivales", href:"/festivales.html", roles:["SuperAdmin", "Admin"] },
+  { label:"Permisos", href:"/permisos.html", permission:"permissions_view" },
+  { label:"Mapa", href:"/app-map.html", roles:["SuperAdmin", "Admin"] }
+];
 
-  const links = [
-    ["Recargas", "/recargas.html"],
-    ["Usuarios", "/usuarios.html"],
-    ["Transferencias", "/transferencias-saldo.html"],
-    ["Lista de precios", "/lista-precios.html"],
-    ["Reportes (Cajero)", "/dashboard-caja/reportes.html"],
-    ["Cerrar sesion", "__logout__"]
-  ];
+const CASHLESS_CASHIER_NAV_ITEMS = [
+  { label:"Caja", href:"/dashboard-caja/" },
+  { label:"Recargas", href:"/recargas.html" },
+  { label:"Usuarios", href:"/usuarios.html" },
+  { label:"Transferencias", href:"/transferencias-saldo.html" },
+  { label:"Precios", href:"/lista-precios.html" },
+  { label:"Cortes", href:"/dashboard-caja/reportes.html" }
+];
 
-  const normalizePath = (p) => String(p || "").toLowerCase();
-  const current = normalizePath(currentPath || window.location.pathname);
-  const baseStyle = "display:inline-flex;align-items:center;gap:8px;padding:10px 14px;border-radius:12px;background:#2a2a3a;color:#fff;text-decoration:none;font-weight:800;border:1px solid rgba(255,255,255,.08)";
+function userCanSeeNavItem(item, roleName = currentRoleName()){
+  if(!getSession()) return false;
+  if(item.publicForSession) return true;
+  if(Array.isArray(item.roles) && item.roles.includes(roleName)) return true;
+  if(item.permission && roleHasPermission(item.permission, roleName)) return true;
+  if(Array.isArray(item.anyPermission) && item.anyPermission.some((key) => roleHasPermission(key, roleName))) return true;
+  return false;
+}
 
-  host.innerHTML = brandHtml + links.map(([label, href]) => {
-    const active = current.endsWith(normalizePath(href)) ? ";outline:1px solid rgba(47,124,255,.6);background:rgba(47,124,255,.18)" : "";
-    return `<a class="btn alt" href="${href}" style="${baseStyle}${active}">${label}</a>`;
+function normalizeNavPath(path){
+  let p = String(path || "/").split("?")[0].split("#")[0].toLowerCase();
+  if(p.endsWith("/index.html")) p = p.slice(0, -"index.html".length);
+  return p;
+}
+
+function isActiveNavPath(current, href){
+  const c = normalizeNavPath(current);
+  const h = normalizeNavPath(href);
+  if(h === "/dashboard-caja/") return c === "/dashboard-caja/" || c === "/dashboard-caja";
+  return c === h;
+}
+
+function isActiveNavItem(currentPath, item){
+  if(isActiveNavPath(currentPath, item.href)) return true;
+  return Array.isArray(item.activePaths) && item.activePaths.some((path) => isActiveNavPath(currentPath, path));
+}
+
+function buildNavHtml(items, currentPath, options = {}){
+  const roleName = currentRoleName();
+  const visible = items.filter((item) => options.forceVisible || userCanSeeNavItem(item, roleName));
+  const links = visible.map((item) => {
+    const active = isActiveNavItem(currentPath || window.location.pathname, item) ? " is-active" : "";
+    return `<a class="cashless-nav__link${active}" href="${item.href}">${item.label}</a>`;
   }).join("");
 
-  host.querySelectorAll("a[href='__logout__']").forEach(a => {
-    a.addEventListener("click", (ev) => {
+  return `
+    <div class="cashless-nav__brand">
+      <img src="/assets/logo-horizontal.png" alt="Cashless" class="cashless-nav__logo">
+    </div>
+    <div class="cashless-nav__links">${links}</div>
+    <div class="cashless-nav__session" title="${escapeHtml(currentSessionLabel())}">${escapeHtml(currentSessionLabel())}</div>
+    <button type="button" class="cashless-nav__logout" data-cashless-logout>Cerrar sesion</button>
+  `;
+}
+
+function escapeHtml(value){
+  return String(value ?? "")
+    .replaceAll("&", "&amp;")
+    .replaceAll("<", "&lt;")
+    .replaceAll(">", "&gt;")
+    .replaceAll('"', "&quot;")
+    .replaceAll("'", "&#039;");
+}
+
+function bindLogoutButtons(root = document){
+  root.querySelectorAll("[data-cashless-logout], a[href='__logout__']").forEach((node) => {
+    if(node.dataset.cashlessLogoutBound === "1") return;
+    node.dataset.cashlessLogoutBound = "1";
+    node.addEventListener("click", (ev) => {
       ev.preventDefault();
       clearSession();
       window.location.href = "/login.html";
     });
   });
 }
+
+function renderAppMenu(containerId = "appMenu", currentPath = ""){
+  const host = $(containerId);
+  if(!host) return;
+  host.classList.add("cashless-nav");
+  host.innerHTML = buildNavHtml(CASHLESS_NAV_ITEMS, currentPath);
+  bindLogoutButtons(host);
+}
+
+function renderCashierMenu(containerId = "cashierMenu", currentPath = ""){
+  const host = $(containerId);
+  if(!host) return;
+  host.classList.add("cashless-nav");
+  host.innerHTML = buildNavHtml(CASHLESS_CASHIER_NAV_ITEMS, currentPath, { forceVisible:true });
+  bindLogoutButtons(host);
+}
+
+let cashlessPendingRequests = 0;
+
+function ensureGlobalStatusNodes(){
+  if(!document.body) return {};
+  let busy = document.getElementById("cashlessGlobalBusy");
+  if(!busy){
+    busy = document.createElement("div");
+    busy.id = "cashlessGlobalBusy";
+    busy.className = "cashless-busy";
+    busy.innerHTML = `<span class="cashless-spinner"></span><span>Procesando...</span>`;
+    document.body.appendChild(busy);
+  }
+
+  let toast = document.getElementById("cashlessToast");
+  if(!toast){
+    toast = document.createElement("div");
+    toast.id = "cashlessToast";
+    toast.className = "cashless-toast";
+    document.body.appendChild(toast);
+  }
+
+  return { busy, toast };
+}
+
+function setGlobalBusy(isBusy){
+  const { busy } = ensureGlobalStatusNodes();
+  if(!busy) return;
+  busy.classList.toggle("is-visible", !!isBusy);
+}
+
+function showToast(message, type = "info", timeoutMs = 3200){
+  const { toast } = ensureGlobalStatusNodes();
+  if(!toast) return;
+  toast.textContent = message || "";
+  toast.className = `cashless-toast is-visible ${type}`;
+  window.clearTimeout(showToast._timer);
+  showToast._timer = window.setTimeout(() => {
+    toast.classList.remove("is-visible");
+  }, timeoutMs);
+}
+
+function setStatusNode(nodeOrId, message, type = "info"){
+  const node = typeof nodeOrId === "string" ? $(nodeOrId) : nodeOrId;
+  if(!node) return;
+  node.textContent = message || "";
+  node.classList.remove("ok", "bad", "error", "success", "info");
+  node.classList.add(type === "error" ? "error" : type);
+}
+
+function renderEmptyState(nodeOrId, message = "Sin datos", detail = ""){
+  const node = typeof nodeOrId === "string" ? $(nodeOrId) : nodeOrId;
+  if(!node) return;
+  node.innerHTML = `<div class="empty-state"><b>${escapeHtml(message)}</b>${detail ? `<span>${escapeHtml(detail)}</span>` : ""}</div>`;
+}
+
+document.addEventListener("DOMContentLoaded", () => {
+  const path = normalizeNavPath(window.location.pathname);
+  if(document.getElementById("appMenu")) renderAppMenu("appMenu", path);
+  if(document.getElementById("cashierMenu")) renderCashierMenu("cashierMenu", path);
+  bindLogoutButtons(document);
+  document.body.classList.add("cashless-ui");
+});

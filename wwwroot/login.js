@@ -225,7 +225,7 @@ async function doLogin(){
     const roleNorm = String(role || "").trim().toLowerCase();
     const isAdmin = roleNorm === "admin" || roleNorm === "superadmin";
     const isCashier = roleNorm === "cajero" || roleNorm === "cashier";
-    window.location.href = isAdmin ? "/operators.html" : (isCashier ? "/dashboard-caja/" : "/ops.html");
+    window.location.href = isAdmin ? "/dashboard.html" : (isCashier ? "/dashboard-caja/" : "/ops.html");
   } catch(e){
     const msg = e?.name === "AbortError"
       ? "Timeout en /api/auth/login. Revisa el servidor."

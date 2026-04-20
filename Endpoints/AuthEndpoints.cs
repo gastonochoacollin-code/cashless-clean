@@ -10,6 +10,7 @@ using Microsoft.Extensions.Hosting;
 
 public static class AuthEndpoints
 {
+    private const string AdminLoginEmail = "admin@cashless.com";
     internal sealed class AuthEndpointsMarker {}
 
     public static WebApplication MapAuthEndpoints(this WebApplication app)
@@ -200,6 +201,8 @@ public static class AuthEndpoints
         var operatorInput = req.Operator?.Trim();
         var operatorName = req.OperatorName?.Trim();
         var operatorId = req.OperatorId;
+        operatorInput = NormalizeLoginOperator(operatorInput);
+        operatorName = NormalizeLoginOperator(operatorName);
 
         if (string.IsNullOrWhiteSpace(operatorInput) && string.IsNullOrWhiteSpace(operatorName) && !operatorId.HasValue)
         {
@@ -291,5 +294,13 @@ public static class AuthEndpoints
             token,
             operatorToken = token
         });
+    }
+
+    private static string? NormalizeLoginOperator(string? value)
+    {
+        if (string.Equals(value, AdminLoginEmail, StringComparison.OrdinalIgnoreCase))
+            return "Admin";
+
+        return value;
     }
 }

@@ -4,9 +4,6 @@
 
   const session = requireSession();
   requireUiPermission("topup", "/dashboard.html");
-  if (typeof renderAppMenu === "function") {
-    renderAppMenu("appMenu", "/recargas.html");
-  }
 
   let terminalBinding = null;
 
@@ -162,15 +159,10 @@
     const roleName = normalizeRoleName(session.role || session.Role);
     const dashboardHref = roleName === "Cajero" ? "/dashboard-caja/" : "/dashboard.html";
     if(roleName === "Cajero"){
-      const appMenu = el("appMenu");
-      if(appMenu){
-        appMenu.innerHTML = `
-          <a class="btn alt" href="/dashboard-caja/">Dashboard Caja</a>
-          <a class="btn alt" href="/usuarios.html">Usuarios</a>
-          <a class="btn alt" href="/lista-precios.html">Lista de precios</a>
-        `;
-      }
+      renderCashierMenu("appMenu", "/recargas.html");
       if(el("btnDashboard")) el("btnDashboard").style.display = "none";
+    }else{
+      renderAppMenu("appMenu", "/recargas.html");
     }
     if(el("btnDashboard")) el("btnDashboard").href = dashboardHref;
     initTerminalSelect();

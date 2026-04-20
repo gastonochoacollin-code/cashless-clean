@@ -1,3 +1,246 @@
+.cashless-ui {
+  --cashless-bg: #0b0d10;
+  --cashless-panel: #151820;
+  --cashless-panel-2: #1d222c;
+  --cashless-line: rgba(255, 255, 255, .12);
+  --cashless-text: #f7f8fb;
+  --cashless-muted: #a9b0ba;
+  --cashless-primary: #1f7a5c;
+  --cashless-primary-2: #2f7cff;
+  --cashless-danger: #d94a4a;
+  --cashless-warning: #d9a441;
+  color-scheme: dark;
+}
+
+.cashless-ui body,
+body.cashless-ui {
+  background: var(--cashless-bg);
+}
+
+.cashless-nav {
+  width: 100%;
+  display: grid !important;
+  grid-template-columns: auto minmax(0, 1fr) auto auto;
+  gap: 10px;
+  align-items: center;
+  margin: 0 0 14px;
+  padding: 10px;
+  border: 1px solid var(--cashless-line);
+  border-radius: 8px;
+  background: rgba(21, 24, 32, .94);
+  box-shadow: 0 10px 30px rgba(0, 0, 0, .22);
+}
+
+.cashless-nav__brand {
+  display: flex;
+  align-items: center;
+  min-width: 124px;
+}
+
+.cashless-nav__logo {
+  width: 124px;
+  max-width: 36vw;
+  height: auto;
+  display: block;
+}
+
+.cashless-nav__links {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  overflow-x: auto;
+  scrollbar-width: thin;
+  padding: 2px;
+}
+
+.cashless-nav__link,
+.cashless-nav__logout {
+  min-height: 38px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  white-space: nowrap;
+  padding: 9px 11px;
+  border-radius: 8px;
+  border: 1px solid transparent;
+  background: transparent;
+  color: var(--cashless-text);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 800;
+  line-height: 1;
+  cursor: pointer;
+}
+
+.cashless-nav__link:hover {
+  background: rgba(255, 255, 255, .07);
+  border-color: rgba(255, 255, 255, .12);
+}
+
+.cashless-nav__link.is-active {
+  background: rgba(31, 122, 92, .22);
+  border-color: rgba(48, 186, 137, .48);
+  color: #c8ffe5;
+}
+
+.cashless-nav__session {
+  max-width: 230px;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  color: var(--cashless-muted);
+  font-size: 12px;
+  border: 1px solid var(--cashless-line);
+  border-radius: 8px;
+  padding: 9px 10px;
+  background: rgba(255, 255, 255, .04);
+}
+
+.cashless-nav__logout {
+  background: rgba(217, 74, 74, .16);
+  border-color: rgba(217, 74, 74, .36);
+  color: #ffd6d6;
+}
+
+.cashless-busy {
+  position: fixed;
+  right: 16px;
+  bottom: 16px;
+  z-index: 9998;
+  display: none;
+  align-items: center;
+  gap: 10px;
+  padding: 10px 12px;
+  border-radius: 8px;
+  border: 1px solid var(--cashless-line);
+  background: rgba(15, 17, 22, .96);
+  color: var(--cashless-text);
+  box-shadow: 0 12px 34px rgba(0, 0, 0, .32);
+  font-size: 13px;
+  font-weight: 800;
+}
+
+.cashless-busy.is-visible {
+  display: inline-flex;
+}
+
+.cashless-spinner {
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, .22);
+  border-top-color: #30ba89;
+  animation: cashless-spin .8s linear infinite;
+}
+
+@keyframes cashless-spin {
+  to { transform: rotate(360deg); }
+}
+
+.cashless-toast {
+  position: fixed;
+  left: 50%;
+  bottom: 18px;
+  z-index: 9999;
+  transform: translate(-50%, 18px);
+  opacity: 0;
+  pointer-events: none;
+  max-width: min(560px, calc(100vw - 28px));
+  padding: 11px 14px;
+  border-radius: 8px;
+  border: 1px solid var(--cashless-line);
+  background: rgba(21, 24, 32, .98);
+  color: var(--cashless-text);
+  box-shadow: 0 16px 40px rgba(0, 0, 0, .34);
+  transition: opacity .18s ease, transform .18s ease;
+  font-weight: 800;
+}
+
+.cashless-toast.is-visible {
+  opacity: 1;
+  transform: translate(-50%, 0);
+}
+
+.cashless-toast.error {
+  border-color: rgba(217, 74, 74, .48);
+  background: rgba(55, 18, 18, .98);
+  color: #ffd6d6;
+}
+
+.cashless-toast.success,
+.cashless-toast.ok {
+  border-color: rgba(48, 186, 137, .48);
+  background: rgba(16, 48, 38, .98);
+  color: #c8ffe5;
+}
+
+.empty-state {
+  display: grid;
+  gap: 6px;
+  padding: 18px;
+  border: 1px dashed var(--cashless-line);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, .03);
+  color: var(--cashless-muted);
+}
+
+.empty-state b {
+  color: var(--cashless-text);
+}
+
+.cashless-ui .btn,
+.cashless-ui button,
+.cashless-ui input,
+.cashless-ui select,
+.cashless-ui textarea,
+.cashless-ui .field {
+  border-radius: 8px !important;
+}
+
+.cashless-ui .card,
+.cashless-ui .modal-card,
+.cashless-ui .status,
+.cashless-ui .tableWrap,
+.cashless-ui .table-wrap {
+  border-radius: 8px !important;
+}
+
+.cashless-ui table {
+  border-collapse: collapse;
+}
+
+.cashless-ui th {
+  position: sticky;
+  top: 0;
+  z-index: 1;
+  background: rgba(18, 21, 28, .98);
+}
+
+.cashless-ui tr:hover td {
+  background: rgba(255, 255, 255, .025);
+}
+
+@media (max-width: 900px) {
+  .cashless-nav {
+    grid-template-columns: 1fr auto;
+  }
+
+  .cashless-nav__brand,
+  .cashless-nav__session {
+    display: none;
+  }
+
+  .cashless-nav__links {
+    grid-column: 1 / -1;
+    order: 2;
+  }
+
+  .cashless-nav__logout {
+    grid-column: 2;
+    grid-row: 1;
+  }
+}
+
 .brand {
   display: flex;
   align-items: center;

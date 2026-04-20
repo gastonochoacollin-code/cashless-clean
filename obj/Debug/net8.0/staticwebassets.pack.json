@@ -1,0 +1,269 @@
+{
+  "Files": [
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\app-map.html",
+      "PackagePath": "staticwebassets\\app-map.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\app.js",
+      "PackagePath": "staticwebassets\\app.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\asignacion-roles.html",
+      "PackagePath": "staticwebassets\\asignacion-roles.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\asignacion-roles.js",
+      "PackagePath": "staticwebassets\\asignacion-roles.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\assets\\favicon.png",
+      "PackagePath": "staticwebassets\\assets\\favicon.png"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\assets\\logo-horizontal.png",
+      "PackagePath": "staticwebassets\\assets\\logo-horizontal.png"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\assets\\logo.png",
+      "PackagePath": "staticwebassets\\assets\\logo.png"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\barras.html",
+      "PackagePath": "staticwebassets\\barras.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\barras.js",
+      "PackagePath": "staticwebassets\\barras.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\common.js",
+      "PackagePath": "staticwebassets\\common.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\dashboard-caja\\app.js",
+      "PackagePath": "staticwebassets\\dashboard-caja\\app.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\dashboard-caja\\index.html",
+      "PackagePath": "staticwebassets\\dashboard-caja\\index.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\dashboard-caja\\reportes.html",
+      "PackagePath": "staticwebassets\\dashboard-caja\\reportes.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\dashboard-caja\\reportes.js",
+      "PackagePath": "staticwebassets\\dashboard-caja\\reportes.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\dashboard.html",
+      "PackagePath": "staticwebassets\\dashboard.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\dashboard.js",
+      "PackagePath": "staticwebassets\\dashboard.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\festivales.html",
+      "PackagePath": "staticwebassets\\festivales.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\festivales.js",
+      "PackagePath": "staticwebassets\\festivales.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\index.html",
+      "PackagePath": "staticwebassets\\index.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\inventarios-reportes.html",
+      "PackagePath": "staticwebassets\\inventarios-reportes.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\inventarios-reportes.js",
+      "PackagePath": "staticwebassets\\inventarios-reportes.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\inventarios.html",
+      "PackagePath": "staticwebassets\\inventarios.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\inventarios.js",
+      "PackagePath": "staticwebassets\\inventarios.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\lista-precios.html",
+      "PackagePath": "staticwebassets\\lista-precios.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\lista-precios.js",
+      "PackagePath": "staticwebassets\\lista-precios.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\login.html",
+      "PackagePath": "staticwebassets\\login.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\login.js",
+      "PackagePath": "staticwebassets\\login.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\menus.html",
+      "PackagePath": "staticwebassets\\menus.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\menus.js",
+      "PackagePath": "staticwebassets\\menus.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\operators.html",
+      "PackagePath": "staticwebassets\\operators.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\operators.js",
+      "PackagePath": "staticwebassets\\operators.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\ops.html",
+      "PackagePath": "staticwebassets\\ops.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\ops.js",
+      "PackagePath": "staticwebassets\\ops.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\permisos.html",
+      "PackagePath": "staticwebassets\\permisos.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\permisos.js",
+      "PackagePath": "staticwebassets\\permisos.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\pos.html",
+      "PackagePath": "staticwebassets\\pos.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\pos.js",
+      "PackagePath": "staticwebassets\\pos.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\print-report.html",
+      "PackagePath": "staticwebassets\\print-report.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\print-report.js",
+      "PackagePath": "staticwebassets\\print-report.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\recargas.html",
+      "PackagePath": "staticwebassets\\recargas.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\recargas.js",
+      "PackagePath": "staticwebassets\\recargas.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\registro-usuarios.html",
+      "PackagePath": "staticwebassets\\registro-usuarios.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\registro-usuarios.js",
+      "PackagePath": "staticwebassets\\registro-usuarios.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reportes-barra.html",
+      "PackagePath": "staticwebassets\\reportes-barra.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reportes-barra.js",
+      "PackagePath": "staticwebassets\\reportes-barra.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-cashier.html",
+      "PackagePath": "staticwebassets\\reports-cashier.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-cashier.js",
+      "PackagePath": "staticwebassets\\reports-cashier.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-products.html",
+      "PackagePath": "staticwebassets\\reports-products.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-products.js",
+      "PackagePath": "staticwebassets\\reports-products.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-recharges.html",
+      "PackagePath": "staticwebassets\\reports-recharges.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-recharges.js",
+      "PackagePath": "staticwebassets\\reports-recharges.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-summary.html",
+      "PackagePath": "staticwebassets\\reports-summary.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports-summary.js",
+      "PackagePath": "staticwebassets\\reports-summary.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports.html",
+      "PackagePath": "staticwebassets\\reports.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\reports.js",
+      "PackagePath": "staticwebassets\\reports.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\site.css",
+      "PackagePath": "staticwebassets\\site.css"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\transferencias-saldo.html",
+      "PackagePath": "staticwebassets\\transferencias-saldo.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\transferencias-saldo.js",
+      "PackagePath": "staticwebassets\\transferencias-saldo.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\usuarios.html",
+      "PackagePath": "staticwebassets\\usuarios.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\usuarios.js",
+      "PackagePath": "staticwebassets\\usuarios.js"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\ventas.html",
+      "PackagePath": "staticwebassets\\ventas.html"
+    },
+    {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\ventas.js",
+      "PackagePath": "staticwebassets\\ventas.js"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.Cashless.Api.Microsoft.AspNetCore.StaticWebAssets.props",
+      "PackagePath": "build\\Microsoft.AspNetCore.StaticWebAssets.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.build.Cashless.Api.props",
+      "PackagePath": "build\\Cashless.Api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildMultiTargeting.Cashless.Api.props",
+      "PackagePath": "buildMultiTargeting\\Cashless.Api.props"
+    },
+    {
+      "Id": "obj\\Debug\\net8.0\\staticwebassets\\msbuild.buildTransitive.Cashless.Api.props",
+      "PackagePath": "buildTransitive\\Cashless.Api.props"
+    }
+  ],
+  "ElementsToRemove": []
+}
