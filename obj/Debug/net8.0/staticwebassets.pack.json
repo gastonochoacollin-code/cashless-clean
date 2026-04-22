@@ -93,6 +93,10 @@
       "PackagePath": "staticwebassets\\inventarios.js"
     },
     {
+      "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\js\\demo-modal.js",
+      "PackagePath": "staticwebassets\\js\\demo-modal.js"
+    },
+    {
       "Id": "C:\\proyectos\\cashless-clean\\wwwroot\\lista-precios.html",
       "PackagePath": "staticwebassets\\lista-precios.html"
     },

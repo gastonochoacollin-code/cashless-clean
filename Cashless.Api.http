@@ -1,4 +1,4 @@
-@Cashless.Api_HostAddress = http://localhost:5237
+@Cashless.Api_HostAddress = http://localhost:5001
 
 GET {{Cashless.Api_HostAddress}}/weatherforecast/
 Accept: application/json

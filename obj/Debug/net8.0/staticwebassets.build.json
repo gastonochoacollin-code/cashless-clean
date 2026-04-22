@@ -1,6 +1,6 @@
 {
   "Version": 1,
-  "Hash": "2CN9g9jFX4/dX77YLMys7pSEUU3mTDBoskrFzmbi6QY=",
+  "Hash": "NjMryjOXC+ApW4IsGmtEuF6q3BJY8LOrzNw+tx9f0GE=",
   "Source": "Cashless.Api",
   "BasePath": "_content/Cashless.Api",
   "Mode": "Default",
@@ -452,6 +452,25 @@
       "CopyToOutputDirectory": "Never",
       "CopyToPublishDirectory": "PreserveNewest",
       "OriginalItemSpec": "wwwroot\\inventarios.js"
+    },
+    {
+      "Identity": "C:\\proyectos\\cashless-clean\\wwwroot\\js\\demo-modal.js",
+      "SourceId": "Cashless.Api",
+      "SourceType": "Discovered",
+      "ContentRoot": "C:\\proyectos\\cashless-clean\\wwwroot\\",
+      "BasePath": "_content/Cashless.Api",
+      "RelativePath": "js/demo-modal.js",
+      "AssetKind": "All",
+      "AssetMode": "All",
+      "AssetRole": "Primary",
+      "AssetMergeBehavior": "PreferTarget",
+      "AssetMergeSource": "",
+      "RelatedAsset": "",
+      "AssetTraitName": "",
+      "AssetTraitValue": "",
+      "CopyToOutputDirectory": "Never",
+      "CopyToPublishDirectory": "PreserveNewest",
+      "OriginalItemSpec": "wwwroot\\js\\demo-modal.js"
     },
     {
       "Identity": "C:\\proyectos\\cashless-clean\\wwwroot\\lista-precios.html",

@@ -480,6 +480,172 @@
       border-top:1px solid var(--line);
     }
 
+    body.demo-modal-open{
+      overflow:hidden;
+    }
+
+    .demo-modal{
+      position:fixed;
+      inset:0;
+      z-index:1000;
+      display:grid;
+      place-items:center;
+      padding:22px;
+      background:rgba(2, 8, 5, .72);
+      backdrop-filter:blur(8px);
+      opacity:0;
+      pointer-events:none;
+      transition:opacity .22s ease;
+    }
+
+    .demo-modal.is-open{
+      opacity:1;
+      pointer-events:auto;
+    }
+
+    .demo-modal__dialog{
+      width:min(620px, 100%);
+      max-height:min(86vh, 760px);
+      overflow:auto;
+      border-radius:8px;
+      border:1px solid rgba(60,255,155,.28);
+      background:
+        radial-gradient(circle at 12% 0%, rgba(60,255,155,.16), transparent 18rem),
+        linear-gradient(180deg, rgba(15,46,28,.98), rgba(7,20,13,.98));
+      box-shadow:0 28px 90px rgba(0,0,0,.58);
+      transform:scale(.96) translateY(14px);
+      transition:transform .22s ease;
+    }
+
+    .demo-modal.is-open .demo-modal__dialog{
+      transform:scale(1) translateY(0);
+    }
+
+    .demo-modal__header{
+      display:flex;
+      align-items:flex-start;
+      justify-content:space-between;
+      gap:16px;
+      padding:24px 24px 10px;
+    }
+
+    .demo-modal__header h2{
+      margin:0;
+      font-size:28px;
+      line-height:1.08;
+      letter-spacing:-.02em;
+    }
+
+    .demo-modal__header p{
+      margin:8px 0 0;
+      color:var(--muted);
+      line-height:1.55;
+    }
+
+    .demo-modal__close{
+      width:40px;
+      height:40px;
+      flex:0 0 auto;
+      border-radius:8px;
+      border:1px solid var(--line);
+      background:rgba(7,20,13,.72);
+      color:var(--mist);
+      font-size:18px;
+      font-weight:900;
+      cursor:pointer;
+      transition:background .18s ease, border-color .18s ease, transform .18s ease;
+    }
+
+    .demo-modal__close:hover{
+      transform:translateY(-1px);
+      border-color:rgba(60,255,155,.54);
+      background:rgba(60,255,155,.12);
+    }
+
+    .demo-form{
+      display:grid;
+      gap:14px;
+      padding:10px 24px 24px;
+    }
+
+    .demo-form__grid{
+      display:grid;
+      grid-template-columns:repeat(2, minmax(0, 1fr));
+      gap:14px;
+    }
+
+    .demo-field{
+      display:grid;
+      gap:7px;
+    }
+
+    .demo-field--full{
+      grid-column:1 / -1;
+    }
+
+    .demo-field label{
+      color:#e7fff0;
+      font-size:13px;
+      font-weight:900;
+    }
+
+    .demo-field input,
+    .demo-field select,
+    .demo-field textarea{
+      width:100%;
+      border-radius:8px;
+      border:1px solid rgba(210,255,224,.18);
+      background:rgba(4,16,8,.76);
+      color:var(--mist);
+      font:inherit;
+      outline:none;
+      padding:12px 13px;
+      transition:border-color .18s ease, box-shadow .18s ease, background .18s ease;
+    }
+
+    .demo-field textarea{
+      min-height:112px;
+      resize:vertical;
+    }
+
+    .demo-field input:focus,
+    .demo-field select:focus,
+    .demo-field textarea:focus{
+      border-color:rgba(60,255,155,.72);
+      background:rgba(4,16,8,.92);
+      box-shadow:0 0 0 3px rgba(60,255,155,.12);
+    }
+
+    .demo-field input::placeholder,
+    .demo-field textarea::placeholder{
+      color:rgba(169,198,180,.78);
+    }
+
+    .demo-field__error{
+      min-height:17px;
+      color:#ffb4b4;
+      font-size:12px;
+      font-weight:800;
+    }
+
+    .demo-form__status{
+      min-height:22px;
+      color:#c8ffe5;
+      font-size:14px;
+      font-weight:900;
+    }
+
+    .demo-form__status.is-error{
+      color:#ffb4b4;
+    }
+
+    .demo-submit{
+      width:100%;
+      margin-top:2px;
+      border:none;
+      background:linear-gradient(135deg, rgba(60,255,155,.98), rgba(31,92,58,.98));
+    }
+
     @media(max-width:980px){
       h1{font-size:48px}
       .steps,
@@ -503,6 +669,12 @@
       .cta{padding:24px}
       .btn{width:100%}
       .top .btn{width:auto}
+      .demo-modal{padding:14px}
+      .demo-modal__dialog{max-height:90vh}
+      .demo-modal__header{padding:20px 18px 8px}
+      .demo-modal__header h2{font-size:24px}
+      .demo-form{padding:8px 18px 20px}
+      .demo-form__grid{grid-template-columns:1fr}
     }
   </style>
   <link rel="icon" type="image/png" href="/assets/favicon.png">
@@ -666,7 +838,7 @@
             <p>Convierte cada pago en una señal de pertenencia, transparencia y regeneración real.</p>
           </div>
           <div class="hero-actions">
-            <a class="btn secondary" href="mailto:demo@cashless.social?subject=Demo%20Cashless%20Social">Solicitar demo</a>
+            <button class="btn secondary" type="button" id="openDemoModal">Solicitar demo</button>
             <a class="btn" href="/login.html">Entrar al sistema</a>
           </div>
         </div>
@@ -679,8 +851,64 @@
     </footer>
   </div>
 
+  <div class="demo-modal" id="demoModal" aria-hidden="true">
+    <div class="demo-modal__dialog" role="dialog" aria-modal="true" aria-labelledby="demoModalTitle">
+      <div class="demo-modal__header">
+        <div>
+          <h2 id="demoModalTitle">Solicitar demo</h2>
+          <p>Cuéntanos sobre tu operación y te contactaremos pronto.</p>
+        </div>
+        <button class="demo-modal__close" type="button" data-demo-close aria-label="Cerrar formulario">X</button>
+      </div>
+
+      <form class="demo-form" id="demoForm" novalidate>
+        <div class="demo-form__grid">
+          <div class="demo-field">
+            <label for="demoName">Nombre completo</label>
+            <input id="demoName" name="name" type="text" autocomplete="name" required placeholder="Tu nombre">
+            <span class="demo-field__error" data-error-for="name"></span>
+          </div>
+
+          <div class="demo-field">
+            <label for="demoEmail">Email</label>
+            <input id="demoEmail" name="email" type="email" autocomplete="email" required placeholder="correo@empresa.com">
+            <span class="demo-field__error" data-error-for="email"></span>
+          </div>
+
+          <div class="demo-field">
+            <label for="demoPhone">Teléfono</label>
+            <input id="demoPhone" name="phone" type="tel" autocomplete="tel" placeholder="+52 55 0000 0000">
+            <span class="demo-field__error" data-error-for="phone"></span>
+          </div>
+
+          <div class="demo-field">
+            <label for="demoClientType">Tipo de cliente</label>
+            <select id="demoClientType" name="clientType">
+              <option value="Festival">Festival</option>
+              <option value="Hotel">Hotel</option>
+              <option value="Beach Club">Beach Club</option>
+              <option value="Evento privado">Evento privado</option>
+              <option value="Otro">Otro</option>
+            </select>
+            <span class="demo-field__error" data-error-for="clientType"></span>
+          </div>
+
+          <div class="demo-field demo-field--full">
+            <label for="demoMessage">Mensaje</label>
+            <textarea id="demoMessage" name="message" placeholder="Fecha del evento, aforo estimado o necesidades principales"></textarea>
+            <span class="demo-field__error" data-error-for="message"></span>
+          </div>
+        </div>
+
+        <div class="demo-form__status" id="demoFormStatus" aria-live="polite"></div>
+        <button class="btn demo-submit" type="submit">Enviar solicitud</button>
+      </form>
+    </div>
+  </div>
+
   <script>
     document.getElementById("host").textContent = location.host;
   </script>
+  <script src="/js/demo-modal.js"></script>
 </body>
 </html>

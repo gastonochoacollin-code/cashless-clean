@@ -7,28 +7,37 @@ using Cashless.Api.Endpoints;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Data.Sqlite;
 
-Console.WriteLine("🔥 PROGRAM.CS (Cashless.Api) 🔥");
+Console.WriteLine("Cashless.Api starting");
 
 var builder = WebApplication.CreateBuilder(args);
+builder.WebHost.ConfigureKestrel((context, options) =>
+{
+    options.Configure(context.Configuration.GetSection("Kestrel"));
+});
+
 var serverUrls =
-    builder.Configuration["urls"]
+    builder.Configuration["Urls"]
+    ?? builder.Configuration["urls"]
     ?? builder.Configuration["ASPNETCORE_URLS"]
     ?? "http://0.0.0.0:5001";
 builder.WebHost.UseUrls(serverUrls);
 
-var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
-    ?? "Data Source=cashless.db";
+var (connectionString, sqliteDbPath) = BuildSqliteConnection(builder.Configuration);
+Directory.CreateDirectory(Path.GetDirectoryName(sqliteDbPath)!);
+Console.WriteLine($"[STARTUP] SQLite DB: {sqliteDbPath}");
+Console.WriteLine($"[STARTUP] Requested URLs: {serverUrls}");
 
 builder.Services.AddDbContext<CashlessContext>(opt =>
     opt.UseSqlite(connectionString));
+builder.Services.AddSingleton(new SqliteDatabaseInfo(sqliteDbPath, connectionString));
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddSingleton<IUidState, InMemoryUidState>();
 builder.Services.AddScoped<IReportService, ReportService>();
 builder.Services.AddCors(opt =>
-    opt.AddPolicy("local-dev", p =>
-        p.WithOrigins("http://localhost:5237")
-         .AllowAnyHeader()
-         .AllowAnyMethod()));
+    opt.AddPolicy("cashless-lan", p =>
+        p.SetIsOriginAllowed(origin => IsAllowedLanOrigin(origin, builder.Configuration))
+            .AllowAnyHeader()
+            .AllowAnyMethod()));
 
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
@@ -48,7 +57,7 @@ app.Use(async (context, next) =>
     await next();
 });
 app.UseStaticFiles();
-app.UseCors("local-dev");
+app.UseCors("cashless-lan");
 app.Use(async (context, next) =>
 {
     var requestPath = context.Request.Path.Value ?? string.Empty;
@@ -128,17 +137,13 @@ if (app.Environment.IsDevelopment())
 // netsh advfirewall firewall add rule name="Cashless5001" dir=in action=allow protocol=TCP localport=5001
 using (var scope = app.Services.CreateScope())
 {
+    var services = scope.ServiceProvider;
     var db = scope.ServiceProvider.GetRequiredService<CashlessContext>();
     var auth = scope.ServiceProvider.GetRequiredService<IAuthService>();
+    var dbInfo = scope.ServiceProvider.GetRequiredService<SqliteDatabaseInfo>();
     var startupLogger = scope.ServiceProvider.GetRequiredService<ILoggerFactory>().CreateLogger("StartupHardening");
-    var resetDbOnStart = app.Environment.IsDevelopment() && app.Configuration.GetValue<bool>("ResetDbOnStart");
 
-    if (resetDbOnStart)
-    {
-        db.Database.EnsureDeleted();
-        Console.WriteLine("DB RESET OK");
-    }
-
+    startupLogger.LogInformation("SQLite DB path: {DbPath}", dbInfo.Path);
     db.Database.Migrate();
 
     // Compatibilidad local sin depender de nuevas migraciones.
@@ -380,6 +385,7 @@ using (var scope = app.Services.CreateScope())
     }
 
     var defaultTenantId = SeedData(db, auth);
+    SeedSuperAdmin(services);
 
     // Fix legacy TenantId=0 when single-tenant
     if (db.Tenants.Count() == 1 && defaultTenantId > 0)
@@ -430,12 +436,6 @@ int SeedData(CashlessContext db, IAuthService auth)
         };
         db.Festivals.Add(festival);
     }
-    else
-    {
-        festival.StartDate = today;
-        festival.EndDate = today.AddDays(30);
-        festival.IsActive = true;
-    }
 
     var area = db.Areas.FirstOrDefault(a => a.TenantId == tenant.Id && a.Name == "General");
     if (area is null)
@@ -467,17 +467,122 @@ int SeedData(CashlessContext db, IAuthService auth)
         db.Operators.Add(admin);
         Console.WriteLine("ADMIN USER CREATED");
     }
-    else
-    {
-        admin.Role = OperatorRole.Admin;
-        admin.AreaId = area.Id;
-        admin.PinHash = adminPinHash;
-        admin.IsActive = true;
-        Console.WriteLine("ADMIN USER CREATED");
-    }
 
     db.SaveChanges();
     return tenant.Id;
+}
+
+void SeedSuperAdmin(IServiceProvider services)
+{
+    var db = services.GetRequiredService<CashlessContext>();
+    var auth = services.GetRequiredService<IAuthService>();
+
+    var superAdminRole = OperatorRole.SuperAdmin;
+    var tenant = db.Tenants.OrderBy(t => t.Id).FirstOrDefault();
+    if (tenant is null)
+    {
+        tenant = new Tenant { Name = "Default" };
+        db.Tenants.Add(tenant);
+        db.SaveChanges();
+    }
+
+    var area = db.Areas.FirstOrDefault(a => a.TenantId == tenant.Id && a.Name == "General");
+    if (area is null)
+    {
+        area = new Area
+        {
+            Name = "General",
+            IsActive = true,
+            Type = AreaType.General,
+            TenantId = tenant.Id
+        };
+        db.Areas.Add(area);
+        db.SaveChanges();
+    }
+
+    var pinHash = auth.HashPin("1707");
+    var superAdmin = db.Operators.FirstOrDefault(o =>
+        o.TenantId == tenant.Id &&
+        o.Name.Trim().ToLower() == "gaston");
+
+    if (superAdmin is null)
+    {
+        superAdmin = new Operator
+        {
+            Name = "gaston",
+            Role = superAdminRole,
+            AreaId = area.Id,
+            PinHash = pinHash,
+            IsActive = true,
+            TenantId = tenant.Id
+        };
+        db.Operators.Add(superAdmin);
+        db.SaveChanges();
+        Console.WriteLine("SuperAdmin creado: gaston");
+        return;
+    }
+
+    var changed = false;
+    if (superAdmin.Role != superAdminRole)
+    {
+        superAdmin.Role = superAdminRole;
+        changed = true;
+    }
+
+    if (!superAdmin.IsActive)
+    {
+        superAdmin.IsActive = true;
+        changed = true;
+    }
+
+    if (superAdmin.AreaId is null)
+    {
+        superAdmin.AreaId = area.Id;
+        changed = true;
+    }
+
+    if (!string.Equals(superAdmin.PinHash, pinHash, StringComparison.OrdinalIgnoreCase))
+    {
+        superAdmin.PinHash = pinHash;
+        changed = true;
+    }
+
+    if (changed)
+        db.SaveChanges();
+
+    Console.WriteLine("SuperAdmin ya existe");
+}
+
+static (string ConnectionString, string DbPath) BuildSqliteConnection(IConfiguration configuration)
+{
+    const string defaultDbPath = @"C:\CashlessData\cashless.db";
+    var rawConnectionString = configuration.GetConnectionString("DefaultConnection");
+    if (string.IsNullOrWhiteSpace(rawConnectionString))
+    {
+        rawConnectionString = $"Data Source={defaultDbPath}";
+    }
+
+    var builder = new SqliteConnectionStringBuilder(rawConnectionString);
+    var dbPath = string.IsNullOrWhiteSpace(builder.DataSource)
+        ? defaultDbPath
+        : builder.DataSource;
+
+    dbPath = Path.GetFullPath(Environment.ExpandEnvironmentVariables(dbPath));
+    builder.DataSource = dbPath;
+
+    return (builder.ConnectionString, dbPath);
+}
+
+static bool IsAllowedLanOrigin(string origin, IConfiguration configuration)
+{
+    var configuredOrigins = configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? [];
+    if (configuredOrigins.Length > 0)
+    {
+        return configuredOrigins.Any(x => string.Equals(x.TrimEnd('/'), origin.TrimEnd('/'), StringComparison.OrdinalIgnoreCase));
+    }
+
+    return Uri.TryCreate(origin, UriKind.Absolute, out var uri)
+        && (uri.Scheme == Uri.UriSchemeHttp || uri.Scheme == Uri.UriSchemeHttps);
 }
 
 
@@ -489,7 +594,17 @@ app.MapRechargesEndpoints();
 app.MapExportEndpoints();
 app.MapUserBalanceEndpoints();
 app.MapAuthEndpoints();
+
+app.Lifetime.ApplicationStarted.Register(() =>
+{
+    var activeUrls = app.Urls.Count > 0 ? string.Join(", ", app.Urls) : serverUrls;
+    app.Logger.LogInformation("Active URLs: {Urls}", activeUrls);
+    app.Logger.LogInformation("SQLite DB path: {DbPath}", sqliteDbPath);
+});
+
 app.Run();
+
+public sealed record SqliteDatabaseInfo(string Path, string ConnectionString);
 
 
 

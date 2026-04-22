@@ -2,7 +2,7 @@ using Microsoft.Data.Sqlite;
 
 SQLitePCL.Batteries_V2.Init();
 
-var dbPath = args.Length > 0 ? args[0] : Path.GetFullPath(Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "cashless.db"));
+var dbPath = args.Length > 0 ? args[0] : @"C:\CashlessData\cashless.db";
 using var conn = new SqliteConnection($"Data Source={dbPath}");
 conn.Open();
 
